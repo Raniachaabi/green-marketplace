@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'ariana' => 'أريانة',
+    'beja' => 'باجة',
+    'ben_arous' => 'بن عروس',
+    'bizerte' => 'بنزرت',
+    'gabes' => 'قابس',
+    'gafsa' => 'قفصة',
+    'jendouba' => 'جندوبة',
+    'kairouan' => 'القيروان',
+    'kasserine' => 'القصرين',
+    'kebili' => 'قبلي',
+    'kef' => 'الكاف',
+    'mahdia' => 'المهدية',
+    'manouba' => 'منوبة',
+    'medenine' => 'مدنين',
+    'monastir' => 'المنستير',
+    'nabeul' => 'نابل',
+    'sfax' => 'صفاقس',
+    'sidi_bouzid' => 'سيدي بوزيد',
+    'siliana' => 'سليانة',
+    'sousse' => 'سوسة',
+    'tataouine' => 'تطاوين',
+    'tozeur' => 'توزر',
+    'tunis' => 'تونس',
+    'zaghouan' => 'زغوان',
+];

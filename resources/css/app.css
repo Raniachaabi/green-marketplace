@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* NFR-02 — Arabic needs a font with proper glyph coverage; the layout itself
+   flips from the dir attribute alone because every spacing utility in these
+   templates is logical (ms-/me-/ps-/pe-, text-start/text-end). */
+@layer base {
+    [dir="rtl"] body {
+        font-family: "Noto Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+    }
+}
