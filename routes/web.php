@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BadgeController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
@@ -13,6 +14,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [CatalogController::class, 'home'])->name('home');
 
 Route::get('/locale/{locale}', [LocaleController::class, 'switch'])->name('locale.switch');
+
+// ------------------------------------------------------------------ auth
+Route::middleware('guest')->group(function () {
+    Route::get('/connexion', [LoginController::class, 'show'])->name('login.show');
+    Route::post('/connexion', [LoginController::class, 'store'])->name('login.store');
+});
+Route::post('/deconnexion', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
 // ------------------------------------------------------------- catalogue
 Route::get('/catalogue', [CatalogController::class, 'index'])->name('catalog.index');
@@ -43,6 +51,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/annonces/nouvelle', [SellerListingController::class, 'create'])->name('listings.create');
         Route::post('/annonces', [SellerListingController::class, 'store'])->name('listings.store');
         Route::get('/annonces/{listing}', [SellerListingController::class, 'edit'])->name('listings.edit');
+        Route::put('/annonces/{listing}', [SellerListingController::class, 'update'])->name('listings.update');
+        Route::delete('/annonces/{listing}', [SellerListingController::class, 'destroy'])->name('listings.destroy');
         Route::post('/annonces/{listing}/publier', [SellerListingController::class, 'publish'])->name('listings.publish');
+        Route::post('/annonces/{listing}/depublier', [SellerListingController::class, 'unpublish'])->name('listings.unpublish');
+
+        Route::post('/annonces/{listing}/photos', [SellerListingController::class, 'storeMedia'])->name('listings.media.store');
+        Route::delete('/annonces/{listing}/photos/{media}', [SellerListingController::class, 'destroyMedia'])->name('listings.media.destroy');
+        Route::post('/annonces/{listing}/photos/{media}/couverture', [SellerListingController::class, 'coverMedia'])->name('listings.media.cover');
     });
 });

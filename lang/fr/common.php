@@ -7,6 +7,7 @@ return [
     'selling' => 'Vendre',
     'my_orders' => 'Mes commandes',
     'sign_in' => 'Connexion',
+    'sign_out' => 'Déconnexion',
     'back' => 'Retour',
     'yes' => 'Oui',
     'no' => 'Non',

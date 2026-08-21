@@ -44,4 +44,53 @@ return [
     'blocked_title' => 'This listing cannot go live yet:',
     'not_fixable' => 'contact the team',
     'ready_to_publish' => 'Everything checks out — this listing is ready to publish.',
+
+    'nav_listings' => 'Dashboard',
+    'nav_new' => 'New listing',
+    'nav_documents' => 'Documents',
+
+    'new_listing_intro' => 'Pick a category, fill in the details, then add photos before you publish.',
+    'ready_to_list' => 'Ready to list',
+    'change_category' => 'Change category',
+    'photos_after_save' => 'Save this listing first, then add photos on the next screen — a listing needs at least one photo before it can go live.',
+    'save_draft_help' => 'Saved as a draft. You can keep editing before you publish.',
+
+    'section_details' => 'Listing details',
+    'section_pricing' => 'Pricing & availability',
+    'section_photos' => 'Photos',
+
+    'min_order_qty' => 'Minimum order quantity',
+    'min_order_qty_help' => 'The smallest quantity a buyer can order at once.',
+    'lead_time_days' => 'Preparation time (days)',
+    'lead_time_days_help' => 'How long you need before this is ready to ship or deliver.',
+    'green_attributes_help' => 'Shown to buyers as trust badges on the listing card.',
+
+    'view_live' => 'View live',
+    'manage' => 'Manage',
+    'filter_all' => 'All',
+    'listing_count' => '{0} No listings|{1} :count listing|[2,*] :count listings',
+
+    'status_reason_edited' => 'Sent back for review after your last edit — it will go live again once approved.',
+    'listing_resubmitted' => 'Listing saved. Since it was live, it has been sent back for review before it shows again.',
+
+    'unpublish' => 'Unpublish',
+    'confirm_unpublish' => 'Take this listing off the marketplace? Buyers will no longer be able to find or buy it.',
+    'listing_unpublished' => 'Listing unpublished. It is back to draft.',
+
+    'delete_listing' => 'Delete',
+    'confirm_delete' => 'Delete this listing for good? This cannot be undone.',
+    'listing_deleted' => 'Listing deleted.',
+
+    'cover_photo' => 'Cover',
+    'make_cover' => 'Set as cover',
+    'remove' => 'Remove',
+    'no_photos_yet' => 'No photos yet — add at least one before you can publish.',
+    'add_photos' => 'Click to choose photos, or drag them here',
+    'photo_constraints' => 'JPG, PNG or WebP, up to 5 MB each',
+    'photos_help' => 'The first photo is used as the cover image across the catalogue.',
+    'upload_photos' => 'Upload',
+    'photos_uploaded' => 'Photos uploaded.',
+    'photo_removed' => 'Photo removed.',
+    'photo_cover_updated' => 'Cover photo updated.',
+    'save_changes' => 'Save changes',
 ];

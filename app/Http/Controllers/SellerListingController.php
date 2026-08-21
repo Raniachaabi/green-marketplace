@@ -6,10 +6,12 @@ use App\Enums\ListingStatus;
 use App\Models\Category;
 use App\Models\GreenAttribute;
 use App\Models\Listing;
+use App\Models\ListingMedia;
 use App\Services\Publishing\PublishingGate;
 use App\Support\Money;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 
@@ -26,11 +28,28 @@ class SellerListingController extends Controller
 
     public function index(Request $request): View
     {
+        $status = $request->string('status')->toString();
+
+        $base = $request->user()->listings();
+
+        $counts = (clone $base)
+            ->selectRaw('status, count(*) as aggregate')
+            ->groupBy('status')
+            ->pluck('aggregate', 'status')
+            ->mapWithKeys(fn ($count, $key) => [$key instanceof ListingStatus ? $key->value : $key => $count]);
+
+        $listings = $request->user()->listings()
+            ->with(['category', 'media'])
+            ->when($status, fn ($query) => $query->where('status', $status))
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
+
         return view('seller.listings.index', [
-            'listings' => $request->user()->listings()
-                ->with('category')
-                ->latest()
-                ->paginate(20),
+            'listings' => $listings,
+            'counts' => $counts,
+            'total' => $counts->sum(),
+            'status' => $status,
         ]);
     }
 
@@ -46,12 +65,16 @@ class SellerListingController extends Controller
             'rule' => $category?->effectiveRule(),
             'priceCap' => $category?->activePriceCap(),
             'greenAttributes' => GreenAttribute::orderBy('display_order')->get(),
+            'listing' => null,
+            'selectedGreen' => collect(),
         ]);
     }
 
     public function edit(Request $request, Listing $listing): View
     {
         abort_unless($listing->seller_user_id === $request->user()->id, 403);
+
+        $listing->load(['category', 'media', 'greenAttributes']);
 
         $category = $listing->category;
 
@@ -66,6 +89,7 @@ class SellerListingController extends Controller
             'rule' => $category?->effectiveRule(),
             'priceCap' => $category?->activePriceCap(),
             'greenAttributes' => GreenAttribute::orderBy('display_order')->get(),
+            'selectedGreen' => $listing->greenAttributes->pluck('code'),
             'violations' => $result->violations,
         ]);
     }
@@ -76,23 +100,11 @@ class SellerListingController extends Controller
 
         $data = $this->validateListing($request, $category);
 
-        $listing = new Listing([
+        $listing = new Listing(array_merge($this->attributesFromValidated($data), [
             'seller_user_id' => $request->user()->id,
             'category_id' => $category->id,
-            'title' => $data['title'],
-            'description' => $data['description'] ?? [],
-            'price' => Money::fromDinars($data['price']),
-            'unit' => $data['unit'],
-            'stock' => $data['stock'] ?? 0,
-            'min_order_qty' => $data['min_order_qty'] ?? 1,
-            'availability_model' => $data['availability_model'],
-            'lead_time_days' => $data['lead_time_days'] ?? 0,
-            'season_start' => $data['season_start'] ?? null,
-            'season_end' => $data['season_end'] ?? null,
-            'lot_number' => $data['lot_number'] ?? null,
-            'attribute_values' => $data['attributes'] ?? [],
             'status' => ListingStatus::Draft,
-        ]);
+        ]));
 
         $listing->save();
 
@@ -103,6 +115,33 @@ class SellerListingController extends Controller
         return redirect()
             ->route('seller.listings.edit', $listing)
             ->with('status', __('seller.listing_saved'));
+    }
+
+    public function update(Request $request, Listing $listing): RedirectResponse
+    {
+        abort_unless($listing->seller_user_id === $request->user()->id, 403);
+
+        $category = $listing->category;
+        abort_unless($category, 404);
+
+        $data = $this->validateListing($request, $category);
+        $wasActive = $listing->status === ListingStatus::Active;
+
+        $listing->fill($this->attributesFromValidated($data));
+        $listing->save();
+
+        $listing->greenAttributes()->sync($data['green'] ?? []);
+
+        // FR — editing a live listing sends it back for review
+        // (ListingObserver). Tell the seller that happened rather than
+        // letting them discover it later on an unpublished listing.
+        $message = $wasActive && $listing->status === ListingStatus::Pending
+            ? __('seller.listing_resubmitted')
+            : __('seller.listing_saved');
+
+        return redirect()
+            ->route('seller.listings.edit', $listing)
+            ->with('status', $message);
     }
 
     /**
@@ -120,6 +159,90 @@ class SellerListingController extends Controller
         }
 
         return back()->with('status', __('seller.listing_published'));
+    }
+
+    public function unpublish(Request $request, Listing $listing): RedirectResponse
+    {
+        abort_unless($listing->seller_user_id === $request->user()->id, 403);
+        abort_unless($listing->status === ListingStatus::Active, 403);
+
+        $listing->forceFill([
+            'status' => ListingStatus::Draft,
+            'status_reason' => null,
+            'suspended_at' => null,
+        ])->save();
+
+        return back()->with('status', __('seller.listing_unpublished'));
+    }
+
+    public function destroy(Request $request, Listing $listing): RedirectResponse
+    {
+        abort_unless($listing->seller_user_id === $request->user()->id, 403);
+        abort_unless(in_array($listing->status, [ListingStatus::Draft, ListingStatus::Rejected], true), 403);
+
+        foreach ($listing->media as $media) {
+            Storage::disk('public')->delete($media->path);
+        }
+
+        $listing->delete();
+
+        return redirect()
+            ->route('seller.listings.index')
+            ->with('status', __('seller.listing_deleted'));
+    }
+
+    /**
+     * FR-035 — a listing needs at least one photo before it can go live.
+     * This is the only place a seller can supply one.
+     */
+    public function storeMedia(Request $request, Listing $listing): RedirectResponse
+    {
+        abort_unless($listing->seller_user_id === $request->user()->id, 403);
+
+        $request->validate([
+            'photos' => ['required', 'array', 'max:8'],
+            'photos.*' => ['image', 'max:5120'],
+        ]);
+
+        $position = ($listing->media()->max('position') ?? -1) + 1;
+
+        foreach ($request->file('photos', []) as $file) {
+            $listing->media()->create([
+                'path' => $file->store('listings/'.$listing->id, 'public'),
+                'position' => $position,
+            ]);
+
+            $position++;
+        }
+
+        return back()->with('status', __('seller.photos_uploaded'));
+    }
+
+    public function destroyMedia(Request $request, Listing $listing, ListingMedia $media): RedirectResponse
+    {
+        abort_unless($listing->seller_user_id === $request->user()->id, 403);
+        abort_unless($media->listing_id === $listing->id, 404);
+
+        Storage::disk('public')->delete($media->path);
+        $media->delete();
+
+        return back()->with('status', __('seller.photo_removed'));
+    }
+
+    /** Move one photo to position 0 so it becomes the catalogue thumbnail. */
+    public function coverMedia(Request $request, Listing $listing, ListingMedia $media): RedirectResponse
+    {
+        abort_unless($listing->seller_user_id === $request->user()->id, 403);
+        abort_unless($media->listing_id === $listing->id, 404);
+
+        $listing->media()->orderBy('position')->get()
+            ->reject(fn (ListingMedia $m) => $m->id === $media->id)
+            ->values()
+            ->each(fn (ListingMedia $m, int $i) => $m->update(['position' => $i + 1]));
+
+        $media->update(['position' => 0]);
+
+        return back()->with('status', __('seller.photo_cover_updated'));
     }
 
     /**
@@ -195,5 +318,24 @@ class SellerListingController extends Controller
         });
 
         return $validator->validate();
+    }
+
+    /** The validated form payload, shaped into Listing attributes. */
+    private function attributesFromValidated(array $data): array
+    {
+        return [
+            'title' => $data['title'],
+            'description' => $data['description'] ?? [],
+            'price' => Money::fromDinars($data['price']),
+            'unit' => $data['unit'],
+            'stock' => $data['stock'] ?? 0,
+            'min_order_qty' => $data['min_order_qty'] ?? 1,
+            'availability_model' => $data['availability_model'],
+            'lead_time_days' => $data['lead_time_days'] ?? 0,
+            'season_start' => $data['season_start'] ?? null,
+            'season_end' => $data['season_end'] ?? null,
+            'lot_number' => $data['lot_number'] ?? null,
+            'attribute_values' => $data['attributes'] ?? [],
+        ];
     }
 }

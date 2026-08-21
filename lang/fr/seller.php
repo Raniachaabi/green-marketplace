@@ -44,4 +44,53 @@ return [
     'blocked_title' => 'Cette annonce ne peut pas être publiée pour l\'instant :',
     'not_fixable' => 'à traiter avec l\'équipe',
     'ready_to_publish' => 'Tout est en règle — cette annonce peut être publiée.',
+
+    'nav_listings' => 'Tableau de bord',
+    'nav_new' => 'Nouvelle annonce',
+    'nav_documents' => 'Justificatifs',
+
+    'new_listing_intro' => 'Choisissez une catégorie, remplissez les détails, puis ajoutez des photos avant de publier.',
+    'ready_to_list' => 'Prêt à publier',
+    'change_category' => 'Changer de catégorie',
+    'photos_after_save' => 'Enregistrez d\'abord cette annonce, puis ajoutez des photos à l\'écran suivant — une annonce a besoin d\'au moins une photo pour être publiée.',
+    'save_draft_help' => 'Enregistré en brouillon. Vous pouvez continuer à modifier avant de publier.',
+
+    'section_details' => 'Détails de l\'annonce',
+    'section_pricing' => 'Prix et disponibilité',
+    'section_photos' => 'Photos',
+
+    'min_order_qty' => 'Quantité minimale de commande',
+    'min_order_qty_help' => 'La plus petite quantité qu\'un acheteur peut commander à la fois.',
+    'lead_time_days' => 'Délai de préparation (jours)',
+    'lead_time_days_help' => 'Le temps qu\'il vous faut avant que ce soit prêt à expédier ou livrer.',
+    'green_attributes_help' => 'Affichés aux acheteurs comme badges de confiance sur la carte de l\'annonce.',
+
+    'view_live' => 'Voir en ligne',
+    'manage' => 'Gérer',
+    'filter_all' => 'Toutes',
+    'listing_count' => '{0} Aucune annonce|{1} :count annonce|[2,*] :count annonces',
+
+    'status_reason_edited' => 'Renvoyée en vérification après votre dernière modification — elle sera republiée après approbation.',
+    'listing_resubmitted' => 'Annonce enregistrée. Comme elle était en ligne, elle est renvoyée en vérification avant de réapparaître.',
+
+    'unpublish' => 'Dépublier',
+    'confirm_unpublish' => 'Retirer cette annonce du marché ? Les acheteurs ne pourront plus la trouver ni l\'acheter.',
+    'listing_unpublished' => 'Annonce dépubliée. Elle repasse en brouillon.',
+
+    'delete_listing' => 'Supprimer',
+    'confirm_delete' => 'Supprimer définitivement cette annonce ? Cette action est irréversible.',
+    'listing_deleted' => 'Annonce supprimée.',
+
+    'cover_photo' => 'Couverture',
+    'make_cover' => 'Définir comme couverture',
+    'remove' => 'Retirer',
+    'no_photos_yet' => 'Aucune photo pour l\'instant — ajoutez-en au moins une pour pouvoir publier.',
+    'add_photos' => 'Cliquez pour choisir des photos, ou glissez-les ici',
+    'photo_constraints' => 'JPG, PNG ou WebP, jusqu\'à 5 Mo chacune',
+    'photos_help' => 'La première photo sert d\'image de couverture dans tout le catalogue.',
+    'upload_photos' => 'Envoyer',
+    'photos_uploaded' => 'Photos ajoutées.',
+    'photo_removed' => 'Photo retirée.',
+    'photo_cover_updated' => 'Photo de couverture mise à jour.',
+    'save_changes' => 'Enregistrer les modifications',
 ];

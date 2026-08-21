@@ -1,6 +1,21 @@
 import forms from '@tailwindcss/forms'
 import typography from '@tailwindcss/typography'
 
+/**
+ * The design tokens in app.css store each colour as space-separated RGB
+ * channels (e.g. `182 198 63`), not a hex string — that is what lets
+ * Tailwind generate opacity variants (bg-primary/10, dark:bg-primary/15…).
+ * A plain `var(--color-x)` hex reference cannot take an alpha modifier at
+ * all: Tailwind silently drops those utilities instead of erroring, which
+ * is why every /NN opacity variant on a token colour used to render fully
+ * opaque or not at all.
+ */
+function withOpacity(variable) {
+    return ({ opacityValue }) => opacityValue === undefined
+        ? `rgb(var(${variable}))`
+        : `rgb(var(${variable}) / ${opacityValue})`
+}
+
 /** @type {import('tailwindcss').Config} */
 export default {
     darkMode: 'class',
@@ -20,37 +35,37 @@ export default {
                     900: '#14301f',
                 },
                 primary: {
-                    DEFAULT: 'var(--color-primary)',
-                    foreground: 'var(--color-primary-foreground)',
+                    DEFAULT: withOpacity('--color-primary'),
+                    foreground: withOpacity('--color-primary-foreground'),
                 },
                 secondary: {
-                    DEFAULT: 'var(--color-secondary)',
-                    foreground: 'var(--color-secondary-foreground)',
+                    DEFAULT: withOpacity('--color-secondary'),
+                    foreground: withOpacity('--color-secondary-foreground'),
                 },
-                background: 'var(--color-background)',
-                foreground: 'var(--color-foreground)',
+                background: withOpacity('--color-background'),
+                foreground: withOpacity('--color-foreground'),
                 card: {
-                    DEFAULT: 'var(--color-card)',
-                    foreground: 'var(--color-card-foreground)',
+                    DEFAULT: withOpacity('--color-card'),
+                    foreground: withOpacity('--color-card-foreground'),
                 },
                 popover: {
-                    DEFAULT: 'var(--color-popover)',
-                    foreground: 'var(--color-popover-foreground)',
+                    DEFAULT: withOpacity('--color-popover'),
+                    foreground: withOpacity('--color-popover-foreground'),
                 },
                 muted: {
-                    DEFAULT: 'var(--color-muted)',
-                    foreground: 'var(--color-muted-foreground)',
+                    DEFAULT: withOpacity('--color-muted'),
+                    foreground: withOpacity('--color-muted-foreground'),
                 },
                 accent: {
-                    DEFAULT: 'var(--color-accent)',
-                    foreground: 'var(--color-accent-foreground)',
+                    DEFAULT: withOpacity('--color-accent'),
+                    foreground: withOpacity('--color-accent-foreground'),
                 },
-                border: 'var(--color-border)',
-                input: 'var(--color-input)',
-                ring: 'var(--color-ring)',
+                border: withOpacity('--color-border'),
+                input: withOpacity('--color-input'),
+                ring: withOpacity('--color-ring'),
                 destructive: {
-                    DEFAULT: 'var(--color-destructive)',
-                    foreground: 'var(--color-destructive-foreground)',
+                    DEFAULT: withOpacity('--color-destructive'),
+                    foreground: withOpacity('--color-destructive-foreground'),
                 },
             },
             borderRadius: {

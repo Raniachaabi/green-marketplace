@@ -62,8 +62,15 @@
                    class="hidden rounded-full px-3 py-2 font-medium text-stone-600 hover:bg-leaf-50 hover:text-leaf-700 sm:inline-block dark:text-muted-foreground dark:hover:bg-accent dark:hover:text-foreground">
                     {{ __('common.my_orders') }}
                 </a>
+                <form method="post" action="{{ route('logout') }}" class="hidden sm:inline-block">
+                    @csrf
+                    <button type="submit"
+                            class="rounded-full px-3 py-2 font-medium text-stone-600 hover:bg-leaf-50 hover:text-leaf-700 dark:text-muted-foreground dark:hover:bg-accent dark:hover:text-foreground">
+                        {{ __('common.sign_out') }}
+                    </button>
+                </form>
             @else
-                <a href="{{ url('/admin/login') }}"
+                <a href="{{ route('login.show') }}"
                    class="hidden rounded-full px-3 py-2 font-medium text-stone-600 hover:bg-leaf-50 hover:text-leaf-700 sm:inline-block dark:text-muted-foreground dark:hover:bg-accent dark:hover:text-foreground">
                     {{ __('common.sign_in') }}
                 </a>
@@ -121,8 +128,12 @@
             @auth
                 <a href="{{ route('seller.listings.index') }}" class="shrink-0 hover:text-leaf-700 dark:hover:text-foreground">{{ __('common.selling') }}</a>
                 <a href="{{ route('orders.index') }}" class="shrink-0 hover:text-leaf-700 dark:hover:text-foreground">{{ __('common.my_orders') }}</a>
+                <form method="post" action="{{ route('logout') }}" class="shrink-0">
+                    @csrf
+                    <button type="submit" class="hover:text-leaf-700 dark:hover:text-foreground">{{ __('common.sign_out') }}</button>
+                </form>
             @else
-                <a href="{{ url('/admin/login') }}" class="shrink-0 hover:text-leaf-700 dark:hover:text-foreground">{{ __('common.sign_in') }}</a>
+                <a href="{{ route('login.show') }}" class="shrink-0 hover:text-leaf-700 dark:hover:text-foreground">{{ __('common.sign_in') }}</a>
             @endauth
         </div>
     </div>
@@ -185,7 +196,7 @@
                 <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-muted-foreground">{{ __('common.selling') }}</h3>
                 <ul class="mt-3 space-y-2 text-sm text-stone-600 dark:text-muted-foreground">
                     <li><a href="{{ route('seller.onboarding') }}" class="hover:text-leaf-700 dark:hover:text-foreground">{{ __('common.selling') }}</a></li>
-                    <li><a href="{{ url('/admin/login') }}" class="hover:text-leaf-700 dark:hover:text-foreground">{{ __('common.sign_in') }}</a></li>
+                    <li><a href="{{ route('login.show') }}" class="hover:text-leaf-700 dark:hover:text-foreground">{{ __('common.sign_in') }}</a></li>
                 </ul>
             </div>
         </div>

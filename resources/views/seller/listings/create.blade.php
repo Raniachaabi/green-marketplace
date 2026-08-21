@@ -2,184 +2,74 @@
 @section('title', __('seller.new_listing'))
 
 @section('content')
+    <x-seller-nav active="create" />
+
     <div class="mx-auto max-w-3xl space-y-6">
-        <h1 class="text-2xl font-semibold">{{ __('seller.new_listing') }}</h1>
+        <div>
+            <h1 class="text-2xl font-semibold text-leaf-900 dark:text-foreground">{{ __('seller.new_listing') }}</h1>
+            <p class="mt-1 text-sm text-stone-500 dark:text-muted-foreground">{{ __('seller.new_listing_intro') }}</p>
+        </div>
 
         @unless($category)
             {{-- Categories the seller cannot sell in are shown, but disabled
                  with the reason. Hiding them entirely leaves people wondering
                  where their category went; showing them with "you need X"
                  turns a dead end into an onboarding step. --}}
-            <div class="space-y-2">
+            <div class="grid gap-3 sm:grid-cols-2">
                 @foreach($categories as $entry)
-                    <div class="flex items-center justify-between rounded-xl border border-stone-200 bg-white p-3 text-sm">
-                        <div>
-                            <p class="font-medium">{{ $entry['category']->name() }}</p>
+                    <div class="flex items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-white p-4 text-sm shadow-card dark:border-border dark:bg-card">
+                        <div class="min-w-0">
+                            <p class="truncate font-medium text-leaf-900 dark:text-foreground">{{ $entry['category']->name() }}</p>
                             @unless($entry['eligible'])
-                                <p class="text-xs text-amber-700">
+                                <p class="mt-1 text-xs text-amber-700 dark:text-amber-400">
                                     {{ __('seller.requires') }}: {{ $entry['missing']->implode(', ') }}
                                 </p>
+                            @else
+                                <p class="mt-1 text-xs text-leaf-700 dark:text-primary">{{ __('seller.ready_to_list') }}</p>
                             @endunless
                         </div>
                         @if($entry['eligible'])
                             <a href="{{ route('seller.listings.create', ['category' => $entry['category']->id]) }}"
-                               class="text-xs text-leaf-700 underline">{{ __('seller.choose') }}</a>
+                               class="shrink-0 rounded-full bg-gradient-brand px-4 py-2 text-xs font-semibold text-white shadow-sm hover:opacity-90">
+                                {{ __('seller.choose') }}
+                            </a>
                         @else
                             <a href="{{ route('seller.onboarding') }}"
-                               class="text-xs text-stone-500 underline">{{ __('seller.provide_documents') }}</a>
+                               class="shrink-0 rounded-full border border-stone-200 px-3 py-2 text-xs font-medium text-stone-500 hover:border-leaf-300 hover:text-leaf-700 dark:border-border dark:text-muted-foreground dark:hover:border-primary/50 dark:hover:text-primary">
+                                {{ __('seller.provide_documents') }}
+                            </a>
                         @endif
                     </div>
                 @endforeach
             </div>
         @else
-            <form method="post" action="{{ route('seller.listings.store') }}" class="space-y-6">
+            <form method="post" action="{{ route('seller.listings.store') }}" class="space-y-6 pb-24">
                 @csrf
                 <input type="hidden" name="category_id" value="{{ $category->id }}">
 
-                <section class="space-y-3 rounded-xl border border-stone-200 bg-white p-4">
-                    <h2 class="font-semibold">{{ $category->name() }}</h2>
+                <div class="flex items-center justify-between rounded-2xl border border-leaf-200 bg-leaf-50 px-4 py-3 text-sm dark:border-primary/30 dark:bg-primary/10">
+                    <span class="font-medium text-leaf-800 dark:text-primary">{{ $category->name() }}</span>
+                    <a href="{{ route('seller.listings.create') }}" class="text-xs font-medium text-leaf-700 underline dark:text-primary">
+                        {{ __('seller.change_category') }}
+                    </a>
+                </div>
 
-                    @foreach(config('marketplace.locales') as $code => $meta)
-                        <label class="block text-sm">
-                            <span class="text-stone-500">{{ __('seller.title') }} ({{ $meta['name'] }})</span>
-                            <input name="title[{{ $code }}]" class="mt-1 w-full rounded-lg border-stone-300 text-sm"
-                                   dir="{{ $meta['dir'] }}">
-                        </label>
-                    @endforeach
+                @include('seller.listings._form-fields')
 
-                    <label class="block text-sm">
-                        <span class="text-stone-500">{{ __('seller.description') }}</span>
-                        <textarea name="description[{{ app()->getLocale() }}]" rows="4"
-                                  class="mt-1 w-full rounded-lg border-stone-300 text-sm"></textarea>
-                    </label>
-                </section>
+                <div class="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4 text-sm text-stone-600 dark:border-border dark:bg-muted/40 dark:text-muted-foreground">
+                    {{ __('seller.photos_after_save') }}
+                </div>
 
-                <section class="grid gap-3 rounded-xl border border-stone-200 bg-white p-4 sm:grid-cols-2">
-                    <label class="text-sm">
-                        <span class="text-stone-500">{{ __('seller.price') }} (TND)</span>
-                        <input name="price" type="number" step="0.001" required
-                               class="mt-1 w-full rounded-lg border-stone-300 text-sm">
-                        @if($priceCap)
-                            <span class="mt-1 block text-xs text-amber-700">
-                                {{ __('seller.max_price', ['ceiling' => $priceCap->formattedCeiling()]) }}
-                            </span>
-                        @endif
-                    </label>
-
-                    <label class="text-sm">
-                        <span class="text-stone-500">{{ __('seller.unit') }}</span>
-                        <input name="unit" value="{{ $priceCap->unit ?? 'piece' }}" required
-                               class="mt-1 w-full rounded-lg border-stone-300 text-sm">
-                    </label>
-
-                    <label class="text-sm">
-                        <span class="text-stone-500">{{ __('seller.stock') }}</span>
-                        <input name="stock" type="number" min="0" value="0"
-                               class="mt-1 w-full rounded-lg border-stone-300 text-sm">
-                    </label>
-
-                    <label class="text-sm">
-                        <span class="text-stone-500">{{ __('seller.availability') }}</span>
-                        <select name="availability_model" class="mt-1 w-full rounded-lg border-stone-300 text-sm">
-                            @foreach(\App\Enums\AvailabilityModel::cases() as $model)
-                                <option value="{{ $model->value }}">{{ $model->label() }}</option>
-                            @endforeach
-                        </select>
-                    </label>
-
-                    <label class="text-sm">
-                        <span class="text-stone-500">{{ __('seller.season_start') }}</span>
-                        <input name="season_start" type="date" class="mt-1 w-full rounded-lg border-stone-300 text-sm">
-                    </label>
-
-                    <label class="text-sm">
-                        <span class="text-stone-500">{{ __('seller.season_end') }}</span>
-                        <input name="season_end" type="date" class="mt-1 w-full rounded-lg border-stone-300 text-sm">
-                    </label>
-
-                    @if($rule?->requires_lot_number)
-                        <label class="text-sm sm:col-span-2">
-                            <span class="text-stone-500">{{ __('seller.lot_number') }} *</span>
-                            <input name="lot_number" required class="mt-1 w-full rounded-lg border-stone-300 text-sm">
-                            <span class="mt-1 block text-xs text-stone-500">{{ __('seller.lot_number_help') }}</span>
-                        </label>
-                    @endif
-                </section>
-
-                {{-- FR-012 — this whole block is generated from the category.
-                     No PHP here knows what wheat seed or rose water is. --}}
-                @if($fields->isNotEmpty())
-                    <section class="grid gap-3 rounded-xl border border-stone-200 bg-white p-4 sm:grid-cols-2">
-                        <h2 class="font-semibold sm:col-span-2">{{ __('seller.category_fields') }}</h2>
-
-                        @foreach($fields as $field)
-                            <label class="text-sm">
-                                <span class="text-stone-500">
-                                    {{ $field->name() }}@if($field->required) *@endif
-                                    @if($field->unit) <span class="text-stone-400">({{ $field->unit }})</span>@endif
-                                </span>
-
-                                @switch($field->data_type)
-                                    @case('boolean')
-                                        <select name="attributes[{{ $field->key }}]"
-                                                class="mt-1 w-full rounded-lg border-stone-300 text-sm">
-                                            <option value="0">{{ __('common.no') }}</option>
-                                            <option value="1">{{ __('common.yes') }}</option>
-                                        </select>
-                                        @break
-
-                                    @case('select')
-                                        <select name="attributes[{{ $field->key }}]" @required($field->required)
-                                                class="mt-1 w-full rounded-lg border-stone-300 text-sm">
-                                            <option value="">—</option>
-                                            @foreach(($field->options ?? []) as $value => $label)
-                                                <option value="{{ $value }}">{{ $label }}</option>
-                                            @endforeach
-                                        </select>
-                                        @break
-
-                                    @case('text')
-                                        <textarea name="attributes[{{ $field->key }}]" rows="3" @required($field->required)
-                                                  class="mt-1 w-full rounded-lg border-stone-300 text-sm"></textarea>
-                                        @break
-
-                                    @case('number')
-                                    @case('integer')
-                                        <input type="number" step="{{ $field->data_type === 'integer' ? '1' : 'any' }}"
-                                               name="attributes[{{ $field->key }}]" @required($field->required)
-                                               class="mt-1 w-full rounded-lg border-stone-300 text-sm">
-                                        @break
-
-                                    @case('date')
-                                        <input type="date" name="attributes[{{ $field->key }}]" @required($field->required)
-                                               class="mt-1 w-full rounded-lg border-stone-300 text-sm">
-                                        @break
-
-                                    @default
-                                        <input name="attributes[{{ $field->key }}]" @required($field->required)
-                                               class="mt-1 w-full rounded-lg border-stone-300 text-sm">
-                                @endswitch
-                            </label>
-                        @endforeach
-                    </section>
-                @endif
-
-                <section class="rounded-xl border border-stone-200 bg-white p-4">
-                    <h2 class="mb-3 font-semibold">{{ __('seller.green_attributes') }}</h2>
-                    <div class="grid gap-2 sm:grid-cols-3">
-                        @foreach($greenAttributes as $attribute)
-                            <label class="flex items-center gap-2 text-sm">
-                                <input type="checkbox" name="green[]" value="{{ $attribute->code }}"
-                                       class="rounded border-stone-300 text-leaf-600 focus:ring-leaf-500">
-                                <span>{{ $attribute->name() }}</span>
-                            </label>
-                        @endforeach
+                {{-- Sticky so the primary action is always reachable, even on a long
+                     category-field form. --}}
+                <div class="fixed inset-x-0 bottom-0 z-20 border-t border-stone-200 bg-white/95 px-4 py-3 backdrop-blur dark:border-border dark:bg-background/95">
+                    <div class="mx-auto flex max-w-3xl items-center justify-between">
+                        <p class="hidden text-xs text-stone-500 sm:block dark:text-muted-foreground">{{ __('seller.save_draft_help') }}</p>
+                        <button class="ms-auto rounded-full bg-gradient-brand px-6 py-2.5 font-semibold text-white shadow-card hover:opacity-90">
+                            {{ __('seller.save_draft') }}
+                        </button>
                     </div>
-                </section>
-
-                <button class="rounded-lg bg-leaf-600 px-6 py-2 font-medium text-white hover:bg-leaf-700">
-                    {{ __('seller.save_draft') }}
-                </button>
+                </div>
             </form>
         @endunless
     </div>

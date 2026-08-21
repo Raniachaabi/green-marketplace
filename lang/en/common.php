@@ -7,6 +7,7 @@ return [
     'selling' => 'Sell',
     'my_orders' => 'My orders',
     'sign_in' => 'Sign in',
+    'sign_out' => 'Sign out',
     'back' => 'Back',
     'yes' => 'Yes',
     'no' => 'No',
