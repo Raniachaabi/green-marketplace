@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountSettingsController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\CredentialDocumentController;
 use App\Http\Controllers\Admin\PaymentProofController;
@@ -89,6 +90,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/abonnements', [FollowController::class, 'index'])->name('following.index');
 
     Route::post('/listing/{listing}/alerte-stock', [RestockAlertController::class, 'store'])->name('restock_alerts.store');
+
+    Route::get('/parametres', [AccountSettingsController::class, 'show'])->name('settings.show');
+    Route::put('/parametres', [AccountSettingsController::class, 'update'])->name('settings.update');
 
     Route::prefix('adresses')->name('addresses.')->group(function () {
         Route::get('/', [AddressController::class, 'index'])->name('index');

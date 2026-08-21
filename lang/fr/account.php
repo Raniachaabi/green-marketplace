@@ -1,6 +1,15 @@
 <?php
 
 return [
+    'settings_title' => 'Paramètres',
+    'settings_saved' => 'Vos préférences ont été enregistrées.',
+    'notification_preferences' => 'Préférences de notification',
+    'notify_social' => 'Vendeurs suivis et activité des favoris',
+    'notify_social_help' => "Un vendeur suivi ajoute une annonce, ou un article enregistré revient en stock.",
+    'notify_announcements' => 'Annonces de la marketplace',
+    'notify_announcements_help' => "Mises à jour importantes occasionnelles de l'équipe de la marketplace.",
+    'notify_transactional_note' => 'Les notifications de commande, de livraison et de compte sont toujours envoyées — elles ne peuvent pas être désactivées.',
+
     'addresses_title' => 'Mes adresses',
     'addresses_intro' => 'Gérez les adresses de livraison utilisées lors de la commande.',
     'add_address' => 'Ajouter une adresse',

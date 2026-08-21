@@ -17,4 +17,13 @@ return [
     'review_received' => 'New review received: :rating/5.',
     'followed_seller_new_listing' => ':seller, whom you follow, just listed ":title".',
     'restock_available' => 'Good news! ":title" is back in stock.',
+    'order_confirmed' => 'Order :number confirmed. We\'ll keep you posted.',
+    'shipment_updated' => 'Order :number: shipment is now ":status".',
+    'seller_order_status_changed' => 'Order :number is now ":status".',
+    'low_inventory' => '":title" is running low — :stock left in stock.',
+    'credential_expiring_soon' => 'Your :type credential expires in :days day(s).',
+    'credential_expired' => 'Your :type credential has expired.',
+    'credential_submitted' => ':holder submitted a :type credential for review.',
+    'platform_announcement' => ':title — :body',
+    'review_reminder' => 'How was ":title"? Leave a review to help other buyers.',
 ];

@@ -17,4 +17,13 @@ return [
     'review_received' => 'تقييم جديد: :rating/5.',
     'followed_seller_new_listing' => ':seller الذي تتابعه أضاف للتو ":title".',
     'restock_available' => 'خبر سار! ":title" متوفر الآن من جديد.',
+    'order_confirmed' => 'تم تأكيد الطلب :number. سنُبقيك على اطلاع.',
+    'shipment_updated' => 'الطلب :number: أصبحت حالة الشحن الآن ":status".',
+    'seller_order_status_changed' => 'الطلب :number أصبح الآن ":status".',
+    'low_inventory' => '":title" أوشك على النفاد — تبقى :stock في المخزون.',
+    'credential_expiring_soon' => 'وثيقة :type ستنتهي صلاحيتها خلال :days يوم/أيام.',
+    'credential_expired' => 'انتهت صلاحية وثيقة :type.',
+    'credential_submitted' => ':holder قدّم وثيقة :type للمراجعة.',
+    'platform_announcement' => ':title — :body',
+    'review_reminder' => 'كيف كان ":title"؟ اترك تقييما لمساعدة المشترين الآخرين.',
 ];

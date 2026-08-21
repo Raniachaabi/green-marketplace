@@ -1,6 +1,15 @@
 <?php
 
 return [
+    'settings_title' => 'Settings',
+    'settings_saved' => 'Your preferences were saved.',
+    'notification_preferences' => 'Notification preferences',
+    'notify_social' => 'Followed sellers & wishlist activity',
+    'notify_social_help' => 'A followed seller adds a listing, or a saved item comes back in stock.',
+    'notify_announcements' => 'Platform announcements',
+    'notify_announcements_help' => 'Occasional important updates from the marketplace team.',
+    'notify_transactional_note' => 'Order, shipment, and account notifications are always sent — these cannot be turned off.',
+
     'addresses_title' => 'My addresses',
     'addresses_intro' => 'Manage the delivery addresses used at checkout.',
     'add_address' => 'Add an address',

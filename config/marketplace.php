@@ -11,6 +11,12 @@ return [
 
     'commission_rate' => (float) env('MARKETPLACE_COMMISSION_RATE', 10),
 
+    // Phase 2 §1/§2 — a seller is warned once stock drops below this many units.
+    'low_stock_threshold' => (int) env('MARKETPLACE_LOW_STOCK_THRESHOLD', 5),
+
+    // Phase 2 §1 — days after delivery before a buyer is reminded to review.
+    'review_reminder_days' => (int) env('MARKETPLACE_REVIEW_REMINDER_DAYS', 5),
+
     // FR-025 — days before expiry at which sellers are reminded.
     'credential_reminder_days' => array_map(
         'intval',

@@ -1,6 +1,15 @@
 <?php
 
 return [
+    'settings_title' => 'الإعدادات',
+    'settings_saved' => 'تم حفظ تفضيلاتك.',
+    'notification_preferences' => 'تفضيلات الإشعارات',
+    'notify_social' => 'البائعون المتابَعون ونشاط المفضلة',
+    'notify_social_help' => 'بائع تتابعه يضيف إعلانا، أو منتج محفوظ يعود للتوفر.',
+    'notify_announcements' => 'إعلانات المنصة',
+    'notify_announcements_help' => 'تحديثات مهمة أحيانا من فريق السوق.',
+    'notify_transactional_note' => 'إشعارات الطلبات والشحن والحساب تُرسل دائما — لا يمكن إيقافها.',
+
     'addresses_title' => 'عناويني',
     'addresses_intro' => 'إدارة عناوين التسليم المستخدمة عند الطلب.',
     'add_address' => 'إضافة عنوان',

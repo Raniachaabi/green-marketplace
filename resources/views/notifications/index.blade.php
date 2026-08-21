@@ -5,14 +5,19 @@
     <div class="mx-auto max-w-2xl">
         <div class="mb-6 flex items-center justify-between">
             <h1 class="text-2xl font-semibold text-leaf-900 dark:text-foreground">{{ __('notifications.title') }}</h1>
-            @if($notifications->contains(fn ($n) => $n->read_at === null))
-                <form method="post" action="{{ route('notifications.read_all') }}">
-                    @csrf
-                    <button class="text-sm font-semibold text-leaf-700 hover:underline dark:text-primary">
-                        {{ __('notifications.mark_all_read') }}
-                    </button>
-                </form>
-            @endif
+            <div class="flex items-center gap-4">
+                <a href="{{ route('settings.show') }}" class="text-sm font-medium text-stone-500 hover:underline dark:text-muted-foreground">
+                    {{ __('account.notification_preferences') }}
+                </a>
+                @if($notifications->contains(fn ($n) => $n->read_at === null))
+                    <form method="post" action="{{ route('notifications.read_all') }}">
+                        @csrf
+                        <button class="text-sm font-semibold text-leaf-700 hover:underline dark:text-primary">
+                            {{ __('notifications.mark_all_read') }}
+                        </button>
+                    </form>
+                @endif
+            </div>
         </div>
 
         <div class="space-y-2">

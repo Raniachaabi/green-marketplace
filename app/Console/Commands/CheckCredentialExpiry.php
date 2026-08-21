@@ -55,9 +55,9 @@ class CheckCredentialExpiry extends Command
                             continue;
                         }
 
-                        // Wire a real notification here (SMS / WhatsApp).
-                        // Recording it first means a failed send is visible
-                        // rather than silently retried forever.
+                        // recordReminderSent() both records the threshold and
+                        // sends the in-app notification (Phase 2 §1) — one
+                        // call, so a failed send is never silently retried.
                         $manager->recordReminderSent($credential, $threshold);
                         $reminded++;
                     }

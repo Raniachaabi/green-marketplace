@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Credential;
 use App\Models\CredentialType;
+use App\Models\User;
+use App\Notifications\CredentialSubmittedForReview;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 /**
@@ -68,7 +71,7 @@ class SellerOnboardingController extends Controller
             ? $request->file('document')->store('', 'credentials')
             : null;
 
-        Credential::create([
+        $credential = Credential::create([
             'user_id' => $request->user()->id,
             'credential_type_code' => $validated['credential_type_code'],
             'number' => $validated['number'] ?? null,
@@ -78,6 +81,10 @@ class SellerOnboardingController extends Controller
             'document_path' => $path,
             'status' => 'pending',
         ]);
+
+        // Phase 2 §1 — the admin-side signal for "new seller registration" /
+        // "verification request": this is what starts becoming a seller here.
+        Notification::send(User::where('is_admin', true)->get(), new CredentialSubmittedForReview($credential));
 
         return back()->with('status', __('seller.credential_submitted'));
     }

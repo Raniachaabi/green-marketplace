@@ -9,6 +9,8 @@ use App\Models\Credential;
 use App\Models\Listing;
 use App\Models\User;
 use App\Notifications\CredentialApproved;
+use App\Notifications\CredentialExpired;
+use App\Notifications\CredentialExpiringSoon;
 use App\Notifications\CredentialRejected;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -83,6 +85,10 @@ class CredentialManager
             'type' => $credential->credential_type_code,
             'expired_on' => $credential->expires_at?->toDateString(),
         ]);
+
+        if ($credential->holder() instanceof User) {
+            $credential->holder()->notify(new CredentialExpired($credential));
+        }
 
         $this->suspendListingsDependingOn($credential, 'credential_expired');
     }
@@ -174,5 +180,9 @@ class CredentialManager
         $sent[] = $threshold;
 
         $credential->forceFill(['reminders_sent' => array_values(array_unique($sent))])->save();
+
+        if ($credential->holder() instanceof User) {
+            $credential->holder()->notify(new CredentialExpiringSoon($credential, $threshold));
+        }
     }
 }

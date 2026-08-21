@@ -3,15 +3,17 @@
 namespace App\Notifications;
 
 use App\Models\Listing;
+use App\Models\User;
 use Illuminate\Notifications\Notification;
 
 class FollowedSellerNewListing extends Notification
 {
     public function __construct(private readonly Listing $listing) {}
 
+    /** §1 — discretionary; skipped for a buyer who opted out. */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ($notifiable instanceof User && ! $notifiable->wantsSocialNotifications()) ? [] : ['database'];
     }
 
     public function toArray(object $notifiable): array

@@ -15,6 +15,7 @@ use App\Models\Payment;
 use App\Models\Shipment;
 use App\Models\User;
 use App\Notifications\NewOrderReceived;
+use App\Notifications\OrderConfirmed;
 use App\Support\Money;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -97,6 +98,8 @@ class OrderPlacer
             ], $buyer);
 
             $this->cart->clear();
+
+            $buyer->notify(new OrderConfirmed($order));
 
             return $order->fresh(['lines', 'shipments', 'payments', 'documents']);
         });

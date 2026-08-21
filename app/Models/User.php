@@ -19,7 +19,7 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     protected $fillable = [
         'phone', 'email', 'full_name', 'password', 'preferred_locale',
-        'status', 'bio', 'slug', 'avatar_path',
+        'status', 'bio', 'slug', 'avatar_path', 'notify_social', 'notify_announcements',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -39,12 +39,29 @@ class User extends Authenticatable implements FilamentUser, HasName
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'status' => UserStatus::class,
+            'notify_social' => 'boolean',
+            'notify_announcements' => 'boolean',
         ];
     }
 
     public function isSuspended(): bool
     {
         return $this->status === UserStatus::Suspended;
+    }
+
+    /**
+     * §1 — discretionary notifications only (a followed seller's activity,
+     * restock alerts). Transactional notifications (orders, shipments,
+     * credentials, moderation) never check this — they always send.
+     */
+    public function wantsSocialNotifications(): bool
+    {
+        return (bool) $this->notify_social;
+    }
+
+    public function wantsAnnouncements(): bool
+    {
+        return (bool) $this->notify_announcements;
     }
 
     public function canAccessPanel(Panel $panel): bool

@@ -6,10 +6,12 @@ use App\Enums\ListingStatus;
 use App\Models\Listing;
 use App\Models\RestockAlert;
 use App\Models\User;
+use App\Models\Wishlist;
 use App\Notifications\FollowedSellerNewListing;
 use App\Notifications\ListingApproved;
 use App\Notifications\ListingRejected;
 use App\Notifications\ListingSuspended;
+use App\Notifications\LowInventory;
 use App\Notifications\RestockAvailable;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
@@ -65,6 +67,7 @@ class ListingObserver
     public function updated(Listing $listing): void
     {
         $this->notifyRestockSubscribers($listing);
+        $this->notifyLowInventory($listing);
 
         if (! $listing->wasChanged('status') || ! $listing->sellerUser) {
             return;
@@ -99,14 +102,46 @@ class ListingObserver
         }
 
         $alerts = $listing->restockAlerts()->pending()->with('user')->get();
+        $subscriberIds = $alerts->pluck('user_id');
 
-        if ($alerts->isEmpty()) {
+        // §4 — a wishlisted item back in stock is the same real signal as an
+        // explicit restock subscription; a buyer who did both is only ever
+        // notified once.
+        $wishlisters = User::whereIn('id', Wishlist::where('listing_id', $listing->id)->pluck('user_id'))
+            ->whereNotIn('id', $subscriberIds)
+            ->get();
+
+        $recipients = $alerts->pluck('user')->filter()->merge($wishlisters);
+
+        if ($recipients->isNotEmpty()) {
+            Notification::send($recipients, new RestockAvailable($listing));
+        }
+
+        if ($alerts->isNotEmpty()) {
+            RestockAlert::whereIn('id', $alerts->pluck('id'))->update(['notified_at' => now()]);
+        }
+    }
+
+    /**
+     * Phase 2 §1 — the seller hears about it once, the moment stock crosses
+     * below the low-stock threshold, not on every subsequent decrement.
+     */
+    private function notifyLowInventory(Listing $listing): void
+    {
+        if (! $listing->wasChanged('stock')
+            || $listing->status !== ListingStatus::Active
+            || ! $listing->availability_model->tracksStock()
+            || ! $listing->sellerUser) {
             return;
         }
 
-        Notification::send($alerts->pluck('user')->filter(), new RestockAvailable($listing));
+        $threshold = (int) config('marketplace.low_stock_threshold');
+        $wasAboveThreshold = (float) $listing->getOriginal('stock') >= $threshold;
+        $isNowLow = $listing->stock >= 0 && $listing->stock < $threshold;
 
-        RestockAlert::whereIn('id', $alerts->pluck('id'))->update(['notified_at' => now()]);
+        if ($wasAboveThreshold && $isNowLow) {
+            $listing->sellerUser->notify(new LowInventory($listing));
+        }
     }
 
     /**
