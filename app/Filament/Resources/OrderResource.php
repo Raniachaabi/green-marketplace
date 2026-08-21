@@ -58,9 +58,9 @@ class OrderResource extends Resource
                 // Lot lookup is the first thing you need in a recall.
                 Tables\Filters\Filter::make('lot')
                     ->form([Forms\Components\TextInput::make('lot_number')->label('Lot number')])
-                    ->query(fn ($q, array $data) => $data['lot_number'] ?? false
-                        ? $q->whereHas('lines', fn ($l) => $l->where('lot_number', $data['lot_number']))
-                        : $q),
+                    ->query(fn ($query, array $data) => $data['lot_number'] ?? false
+                        ? $query->whereHas('lines', fn ($l) => $l->where('lot_number', $data['lot_number']))
+                        : $query),
             ])
             ->actions([Tables\Actions\EditAction::make()]);
     }

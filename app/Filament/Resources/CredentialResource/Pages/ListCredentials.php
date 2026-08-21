@@ -16,16 +16,16 @@ class ListCredentials extends ListRecords
     {
         return [
             'queue' => Tab::make('Queue')
-                ->modifyQueryUsing(fn (Builder $q) => $q->where('status', CredentialStatus::Pending))
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', CredentialStatus::Pending))
                 ->badge(fn () => \App\Models\Credential::where('status', CredentialStatus::Pending)->count()),
 
             'expiring' => Tab::make('Expiring soon')
-                ->modifyQueryUsing(fn (Builder $q) => $q->expiringWithin(90))
+                ->modifyQueryUsing(fn (Builder $query) => $query->expiringWithin(90))
                 ->badge(fn () => \App\Models\Credential::expiringWithin(90)->count())
                 ->badgeColor('warning'),
 
             'approved' => Tab::make('Approved')
-                ->modifyQueryUsing(fn (Builder $q) => $q->where('status', CredentialStatus::Approved)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', CredentialStatus::Approved)),
 
             'all' => Tab::make('All'),
         ];
