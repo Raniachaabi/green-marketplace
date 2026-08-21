@@ -50,7 +50,7 @@ return new class extends Migration
             // FR-031 — category-driven attributes. Shown relationally in the
             // ERD for readability; implemented here as one JSON column.
             // On Postgres this becomes jsonb with a GIN index (see below).
-            $table->json('attribute_values')->nullable();
+            $table->jsonb('attribute_values')->nullable();
 
             $table->string('governorate', 32)->nullable();
 

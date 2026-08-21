@@ -18,7 +18,8 @@ return new class extends Migration
         // a migration, never a deploy.
         // ---------------------------------------------------------------
         Schema::create('categories', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->uuid('id');
+            $table->primary('id');
             $table->foreignUuid('parent_id')->nullable()->constrained('categories')->cascadeOnDelete();
             $table->string('slug')->unique();
             $table->json('name');                        // {ar,fr,en}
