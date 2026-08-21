@@ -12,4 +12,6 @@ return [
     'out_of_stock' => 'Out of stock',
     'out_of_season' => 'Out of season',
     'unavailable' => 'Unavailable',
+    'browse' => 'Browse the catalogue',
+    'continue_shopping' => 'Continue shopping',
 ];

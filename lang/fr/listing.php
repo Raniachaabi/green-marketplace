@@ -11,6 +11,12 @@ return [
     'price_capped' => 'Prix plafonné par le Ministère de l’Agriculture : :ceiling.',
     'source' => 'Source',
     'toxic_warning' => 'Attention : :species est toxique pour les enfants et les animaux.',
+    'share' => 'Partager',
+    'link_copied' => 'Lien copié',
+    'reviews' => 'Avis',
+    'review_count' => '{1} 1 avis|[2,*] :count avis',
+    'no_reviews' => 'Aucun avis pour l\'instant — les avis apparaissent ici une fois les commandes livrées.',
+    'similar' => 'Vous aimerez peut-être aussi',
     'status' => [
         'draft' => 'Brouillon',
         'pending' => 'En attente',

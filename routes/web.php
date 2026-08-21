@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BadgeController;
 use App\Http\Controllers\CartController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SellerListingController;
 use App\Http\Controllers\SellerOnboardingController;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +42,17 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/mes-commandes', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/mes-commandes/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/mes-commandes/{order}/racheter', [OrderController::class, 'reorder'])->name('orders.reorder');
+
+    Route::post('/avis/{orderLine}', [ReviewController::class, 'store'])->name('reviews.store');
+
+    Route::prefix('adresses')->name('addresses.')->group(function () {
+        Route::get('/', [AddressController::class, 'index'])->name('index');
+        Route::post('/', [AddressController::class, 'store'])->name('store');
+        Route::put('/{address}', [AddressController::class, 'update'])->name('update');
+        Route::delete('/{address}', [AddressController::class, 'destroy'])->name('destroy');
+        Route::post('/{address}/defaut', [AddressController::class, 'setDefault'])->name('default');
+    });
 
     // ---------------------------------------------------------- seller area
     Route::prefix('vendeur')->name('seller.')->group(function () {

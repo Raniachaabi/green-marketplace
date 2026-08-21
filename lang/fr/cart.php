@@ -12,4 +12,6 @@ return [
     'out_of_stock' => 'Rupture de stock',
     'out_of_season' => 'Hors saison',
     'unavailable' => 'Indisponible',
+    'browse' => 'Parcourir le catalogue',
+    'continue_shopping' => 'Continuer mes achats',
 ];

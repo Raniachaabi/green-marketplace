@@ -168,6 +168,20 @@ class Listing extends Model
         return Money::format((int) $this->price).' / '.__('unit.'.$this->unit);
     }
 
+    public function averageRating(): ?float
+    {
+        if (! $this->relationLoaded('reviews')) {
+            return $this->reviews()->avg('rating');
+        }
+
+        return $this->reviews->isEmpty() ? null : round($this->reviews->avg('rating'), 1);
+    }
+
+    public function reviewCount(): int
+    {
+        return $this->relationLoaded('reviews') ? $this->reviews->count() : $this->reviews()->count();
+    }
+
     /** Read one category-driven attribute value. */
     public function attr(string $key, mixed $default = null): mixed
     {

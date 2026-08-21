@@ -11,6 +11,12 @@ return [
     'price_capped' => 'Price capped by the Ministry of Agriculture: :ceiling.',
     'source' => 'Source',
     'toxic_warning' => 'Warning: :species is toxic to children and pets.',
+    'share' => 'Share',
+    'link_copied' => 'Link copied',
+    'reviews' => 'Reviews',
+    'review_count' => '{1} 1 review|[2,*] :count reviews',
+    'no_reviews' => 'No reviews yet — reviews appear here once buyers receive their order.',
+    'similar' => 'You might also like',
     'status' => [
         'draft' => 'Draft',
         'pending' => 'Pending',

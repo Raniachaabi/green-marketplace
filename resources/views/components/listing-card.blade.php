@@ -31,7 +31,19 @@
             {{ $listing->name() }}
         </p>
 
-        <p class="text-base font-bold text-leaf-800 dark:text-primary">{{ $listing->formattedPrice() }}</p>
+        <div class="flex items-center justify-between gap-2">
+            <p class="text-base font-bold text-leaf-800 dark:text-primary">{{ $listing->formattedPrice() }}</p>
+
+            @if(($listing->reviews_count ?? 0) > 0)
+                <p class="flex items-center gap-1 text-xs font-semibold text-stone-500 dark:text-muted-foreground">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5 text-amber-400">
+                        <path d="m12 2.5 2.9 6.3 6.8.7-5.1 4.6 1.5 6.7L12 17.6l-6.1 3.2 1.5-6.7-5.1-4.6 6.8-.7L12 2.5Z"/>
+                    </svg>
+                    {{ number_format((float) $listing->reviews_avg_rating, 1) }}
+                    <span class="text-stone-400 dark:text-muted-foreground/70">({{ $listing->reviews_count }})</span>
+                </p>
+            @endif
+        </div>
 
         {{-- FR-102 — the buyer always knows who they are buying from. --}}
         <div class="mt-auto flex items-center gap-1.5 pt-1 text-xs text-stone-500 dark:text-muted-foreground">

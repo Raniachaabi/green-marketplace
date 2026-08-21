@@ -12,4 +12,6 @@ return [
     'out_of_stock' => 'نفد المخزون',
     'out_of_season' => 'خارج الموسم',
     'unavailable' => 'غير متوفر',
+    'browse' => 'تصفح الفهرس',
+    'continue_shopping' => 'متابعة التسوق',
 ];

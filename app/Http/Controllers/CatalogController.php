@@ -29,6 +29,7 @@ class CatalogController extends Controller
             ->inSeason()
             ->where('availability_model', 'seasonal')
             ->with(['media', 'category', 'sellerUser', 'sellerOrg', 'greenAttributes'])
+            ->withCount('reviews')->withAvg('reviews', 'rating')
             ->latest('published_at')
             ->take(8)
             ->get();
@@ -37,6 +38,7 @@ class CatalogController extends Controller
             ->inSeason()
             ->whereHas('category', fn ($q) => $q->where('listing_type', 'product'))
             ->with(['media', 'category', 'sellerUser', 'sellerOrg', 'greenAttributes'])
+            ->withCount('reviews')->withAvg('reviews', 'rating')
             ->latest('published_at')
             ->take(12)
             ->get();
@@ -47,6 +49,7 @@ class CatalogController extends Controller
             ->inSeason()
             ->whereHas('category', fn ($q) => $q->whereIn('listing_type', ['service', 'experience', 'rental']))
             ->with(['media', 'category', 'sellerUser', 'sellerOrg', 'greenAttributes'])
+            ->withCount('reviews')->withAvg('reviews', 'rating')
             ->latest('published_at')
             ->take(6)
             ->get();
@@ -73,7 +76,9 @@ class CatalogController extends Controller
     /** FR-050 to FR-053 — browse, search, filter, sort. */
     public function index(Request $request): View
     {
-        $query = Listing::active()->inSeason()->with(['media', 'category', 'sellerUser', 'sellerOrg', 'greenAttributes']);
+        $query = Listing::active()->inSeason()
+            ->with(['media', 'category', 'sellerUser', 'sellerOrg', 'greenAttributes'])
+            ->withCount('reviews')->withAvg('reviews', 'rating');
 
         if ($slug = $request->string('category')->toString()) {
             $category = Category::where('slug', $slug)->first();
@@ -125,10 +130,24 @@ class CatalogController extends Controller
     {
         $listing = Listing::active()
             ->where('slug', $slug)
-            ->with(['media', 'category', 'greenAttributes', 'species', 'sellerUser', 'sellerOrg'])
+            ->with([
+                'media', 'category', 'greenAttributes', 'species', 'sellerUser', 'sellerOrg',
+                'reviews' => fn ($q) => $q->with('author')->latest(),
+            ])
             ->firstOrFail();
 
         $listing->increment('view_count');
+
+        // Same category, not this listing, still buyable now — a cheap way
+        // to keep a buyer on the site instead of bouncing after one item.
+        $similar = Listing::active()->inSeason()
+            ->where('category_id', $listing->category_id)
+            ->where('id', '!=', $listing->id)
+            ->with(['media', 'category', 'sellerUser', 'sellerOrg'])
+            ->withCount('reviews')->withAvg('reviews', 'rating')
+            ->latest('published_at')
+            ->take(4)
+            ->get();
 
         return view('catalog.show', [
             'listing' => $listing,
@@ -136,6 +155,7 @@ class CatalogController extends Controller
             'rule' => $listing->category->effectiveRule(),
             'priceCap' => $listing->category->activePriceCap(),
             'badges' => $listing->seller()?->activeBadges() ?? collect(),
+            'similar' => $similar,
         ]);
     }
 }
