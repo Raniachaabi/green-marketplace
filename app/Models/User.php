@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasName
 {
     use HasFactory, HasUuids, Notifiable;
 
@@ -128,6 +129,11 @@ class User extends Authenticatable implements FilamentUser
     }
 
     public function displayName(): string
+    {
+        return $this->full_name;
+    }
+
+    public function getFilamentName(): string
     {
         return $this->full_name;
     }

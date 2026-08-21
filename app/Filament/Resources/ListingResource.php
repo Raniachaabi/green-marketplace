@@ -69,11 +69,12 @@ class ListingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['sellerOrg', 'sellerUser']))
             ->columns([
                 Tables\Columns\TextColumn::make('title')
                     ->label('Title')
                     ->getStateUsing(fn (Listing $r) => $r->name())
-                    ->searchable(query: fn (Builder $q, string $s) => $q->where('title', 'like', "%{$s}%"))
+                    ->searchable(query: fn (Builder $query, string $s) => $query->where('title', 'like', "%{$s}%"))
                     ->wrap(),
 
                 Tables\Columns\TextColumn::make('category.slug')->label('Category')->badge()->sortable(),

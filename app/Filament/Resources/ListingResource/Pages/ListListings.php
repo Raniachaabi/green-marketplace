@@ -17,16 +17,16 @@ class ListListings extends ListRecords
     {
         return [
             'pending' => Tab::make('Awaiting review')
-                ->modifyQueryUsing(fn (Builder $q) => $q->where('status', ListingStatus::Pending))
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', ListingStatus::Pending))
                 ->badge(fn () => Listing::where('status', ListingStatus::Pending)->count()),
 
             'suspended' => Tab::make('Suspended')
-                ->modifyQueryUsing(fn (Builder $q) => $q->where('status', ListingStatus::Suspended))
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', ListingStatus::Suspended))
                 ->badge(fn () => Listing::where('status', ListingStatus::Suspended)->count())
                 ->badgeColor('danger'),
 
             'active' => Tab::make('Live')
-                ->modifyQueryUsing(fn (Builder $q) => $q->where('status', ListingStatus::Active)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', ListingStatus::Active)),
 
             'all' => Tab::make('All'),
         ];

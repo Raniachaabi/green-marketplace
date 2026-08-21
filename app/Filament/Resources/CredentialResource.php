@@ -79,6 +79,7 @@ class CredentialResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['user', 'organization']))
             ->columns([
                 Tables\Columns\TextColumn::make('credential_type_code')
                     ->label('Type')
@@ -89,7 +90,7 @@ class CredentialResource extends Resource
                 Tables\Columns\TextColumn::make('holder')
                     ->label('Holder')
                     ->getStateUsing(fn (Credential $r) => $r->holder()?->displayName() ?? '—')
-                    ->searchable(query: fn (Builder $q, string $search) => $q
+                    ->searchable(query: fn (Builder $query, string $search) => $query
                         ->whereHas('user', fn ($u) => $u->where('full_name', 'like', "%{$search}%"))
                         ->orWhereHas('organization', fn ($o) => $o->where('legal_name', 'like', "%{$search}%"))),
 
@@ -127,11 +128,11 @@ class CredentialResource extends Resource
 
                 Tables\Filters\Filter::make('expiring_90')
                     ->label('Expiring within 90 days')
-                    ->query(fn (Builder $q) => $q->expiringWithin(90)),
+                    ->query(fn (Builder $query) => $query->expiringWithin(90)),
 
                 Tables\Filters\Filter::make('lapsed')
                     ->label('Lapsed but still approved')
-                    ->query(fn (Builder $q) => $q
+                    ->query(fn (Builder $query) => $query
                         ->where('status', CredentialStatus::Approved)
                         ->whereNotNull('expires_at')
                         ->whereDate('expires_at', '<', now())),
