@@ -88,6 +88,19 @@ class Category extends Model
         return $query->whereNull('parent_id');
     }
 
+    /**
+     * A category and every descendant beneath it in the path tree — bounded
+     * on a "/" so a sibling whose slug merely starts with the same
+     * characters (e.g. "vegetal2" next to "vegetal") is never mistaken for
+     * a child.
+     */
+    public function scopeSelfAndDescendantsOf(Builder $query, self $category): Builder
+    {
+        return $query->where(function (Builder $q) use ($category) {
+            $q->where('path', $category->path)->orWhere('path', 'like', $category->path.'/%');
+        });
+    }
+
     // ------------------------------------------------------- inheritance
     //
     // Requirements and rules cascade down the tree. Putting

@@ -61,6 +61,8 @@ SQLite works for a quick look, but Postgres is the target: the listing attribute
 | Gapless invoice numbering | `app/Services/DocumentNumberGenerator.php` |
 | Launch categories, credentials, price caps | `database/seeders/` |
 | Verification queue | `app/Filament/Resources/CredentialResource.php` |
+| Green Score (Phase 2) | `app/Services/GreenScoreCalculator.php` |
+| Seller analytics (Phase 2) | `app/Services/SellerAnalyticsService.php` |
 
 ### The publishing gate
 
@@ -133,12 +135,47 @@ They cover the rules that protect the business, not the framework:
 - checkout refuses to oversell
 - multi-seller orders split into one shipment per seller
 - invoice numbers stay sequential
+- a buyer never sees another buyer's data; a seller never sees another seller's orders, analytics, or listings
+- a delivery tracker never shows a step this app has no real timestamp for
+- a category's listing count never leaks a sibling that merely shares a slug prefix
+
+---
+
+## Phase 2 additions
+
+Everything below was audited against the existing schema and routes first — nothing here duplicates a table, controller, or credential concept that already existed; several ideas (a buyer/seller distinction for "seller", the `verified_seller` badge, the `REVENUE_STATUSES` definition of real revenue) are reused as-is across every new feature that needed them, rather than redefined per feature.
+
+| Feature | New tables | Key files |
+|---|---|---|
+| Green Score | `green_score_rules` | `app/Services/GreenScoreCalculator.php` |
+| Tunisian origin + storytelling | `listings.governorate`, story columns | `app/Models/Listing.php` |
+| Seller follows | `follows` | `app/Http/Controllers/FollowController.php` |
+| Restock alerts | `restock_alerts` | `app/Http/Controllers/RestockAlertController.php` |
+| Notification preferences | `users.notify_social`, `.notify_announcements` | `app/Notifications/` |
+| Review responses + reports | `review_reports`, `reviews.seller_response` | `app/Http/Controllers/ReviewController.php` |
+| Seller story + storefront tabs | story columns on `users` | `app/Http/Controllers/SellerStoryController.php`, `resources/views/seller/storefront.blade.php` |
+| Seller analytics dashboard | — | `app/Services/SellerAnalyticsService.php` |
+| Search improvements | `search_queries` | `app/Http/Controllers/CatalogController.php` |
+| Delivery tracking + personalization | `recently_viewed_listings` | `app/Models/Shipment.php` (`trackerSteps`), `resources/views/components/shipment-tracker.blade.php` |
+| Admin control center | — | `app/Filament/Widgets/MarketplaceHealthStats.php`, `SellerActivityStats.php` |
+| Reusable components | — | `resources/views/components/empty-state.blade.php`, `verification-badge.blade.php` |
+
+**Every number is real.** Seller analytics, admin widgets, Green Score and personalization all read from actual orders, views, follows and reviews — there is no fabricated engagement score, no invented "confirmed at" delivery timestamp, and no seller-targeted review (every review here is listing-targeted, tied to a delivered order line, same as before Phase 2).
+
+Two bugs found only by live-verifying against the real Postgres connection (SQLite tolerates both silently, so `php artisan test` alone would never catch them):
+
+- `DocumentNumberGenerator` ran `lockForUpdate()->max('sequence')` — Postgres rejects `FOR UPDATE` on an aggregate outright, so **every checkout was crashing** before this was fixed to lock the actual candidate row instead.
+- The category tree's "include descendants" filter matched by raw string prefix (`path LIKE 'vegetal%'`), so a category named e.g. `vegetal2` would have been silently counted as a child of `vegetal`. Fixed with a `/`-bounded match (`Category::selfAndDescendantsOf()`), reused by both the catalogue filter and the home page's per-category listing counts.
+
+The home page's root-category listing counts also went from one query pair *per root category* to two queries total, regardless of how many categories exist.
 
 ---
 
 ## What is deliberately not here (P1 / P2)
 
-Bookings and group bookings · institutional purchase (devis → bon de commande → invoice on terms) · carrier API and COD reconciliation ledger · personalization and the impact layer · voice and photo-first listing creation · subscription boxes · plot profiles and the input register.
+Bookings and group bookings · institutional purchase (devis → bon de commande → invoice on terms) · carrier API and COD reconciliation ledger · the impact layer · voice and photo-first listing creation · subscription boxes · plot profiles and the input register.
+
+A buyer- or seller-facing flow to actually **open** a dispute or report an incident is also not here: `disputes` and `incidents` (FR-104/105) are real tables an admin dashboard widget already counts, but nothing in the app ever writes a row into them yet. Building an admin screen to manage rows nothing can create would have been inventing UI for a feature that doesn't exist — see "Phase 2" below.
 
 The PRD marks all of these P1 or P2. **Every one of them is a manual process first.** Verify documents by hand, phone the carrier, reconcile in a spreadsheet — automate only when the manual version actually hurts. That is what makes a solo build shippable in weeks rather than stalling at month four with nothing live.
 

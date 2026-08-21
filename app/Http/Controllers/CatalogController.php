@@ -22,12 +22,22 @@ class CatalogController extends Controller
         $roots = Category::active()->roots()->orderBy('display_order')->get();
 
         // One listing count per root, including its descendants — matches
-        // the same "path like" widening the catalogue filter uses.
-        $rootCounts = $roots->mapWithKeys(fn (Category $root) => [
-            $root->id => Listing::active()->inSeason()
-                ->whereIn('category_id', Category::where('path', 'like', $root->path.'%')->pluck('id'))
-                ->count(),
-        ]);
+        // the same "path like" widening the catalogue filter uses. Loaded
+        // as two queries total (all category paths, then one grouped
+        // listing count), not one pair of queries per root.
+        $allCategoryPaths = Category::query()->pluck('path', 'id');
+        $listingCountsByCategory = Listing::active()->inSeason()
+            ->selectRaw('category_id, count(*) as aggregate')
+            ->groupBy('category_id')
+            ->pluck('aggregate', 'category_id');
+
+        $rootCounts = $roots->mapWithKeys(function (Category $root) use ($allCategoryPaths, $listingCountsByCategory) {
+            $descendantIds = $allCategoryPaths
+                ->filter(fn ($path) => $path === $root->path || str_starts_with($path, $root->path.'/'))
+                ->keys();
+
+            return [$root->id => $listingCountsByCategory->only($descendantIds)->sum()];
+        });
 
         // FR-054 — "in season now". The single most useful home block in an
         // agricultural marketplace, because half the catalogue is only
@@ -146,7 +156,7 @@ class CatalogController extends Controller
 
             if ($category) {
                 // Include descendants, so browsing "Intrants" shows seed too.
-                $ids = Category::where('path', 'like', $category->path.'%')->pluck('id');
+                $ids = Category::selfAndDescendantsOf($category)->pluck('id');
                 $query->whereIn('category_id', $ids);
             }
         }
