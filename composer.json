@@ -1,7 +1,7 @@
 {
     "name": "krawch/green-marketplace",
     "type": "project",
-    "description": "Green Marketplace — one marketplace for green products and services in Tunisia.",
+    "description": "El Marché — one marketplace for green products and services in Tunisia.",
     "keywords": ["marketplace", "tunisia", "green", "laravel"],
     "license": "proprietary",
     "require": {

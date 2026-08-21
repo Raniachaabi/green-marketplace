@@ -13,4 +13,5 @@ return [
     'unknown_seller' => 'Unknown seller',
     'unknown_item' => 'Item',
     'footer_note' => 'Green marketplace — sellers are verified and every badge says what was checked.',
+    'toggle_theme' => 'Toggle dark mode',
 ];

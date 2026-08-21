@@ -2,11 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design tokens — El Marché brand palette. Hex, not HSL triplets: these are
+   consumed directly by Tailwind (theme.extend.colors) as `var(--x)`, and
+   plain hex keeps that mapping a straight passthrough. */
+@layer base {
+    :root {
+        --color-primary: #B6C63F;
+        --color-primary-foreground: #FFFFFF;
+        --color-secondary: #3274AE;
+        --color-secondary-foreground: #FFFFFF;
+        --color-background: #FFFFFF;
+        --color-foreground: #09090B;
+        --color-card: #FFFFFF;
+        --color-card-foreground: #09090B;
+        --color-popover: #FFFFFF;
+        --color-popover-foreground: #09090B;
+        --color-muted: #F2F2F3;
+        --color-muted-foreground: #71717A;
+        --color-accent: #F5F5F5;
+        --color-accent-foreground: #09090B;
+        --color-border: #E3E3E3;
+        --color-input: #E3E3E3;
+        --color-ring: #B6C63F;
+        --color-destructive: #EF4444;
+        --color-destructive-foreground: #FAFAFA;
+        --radius: 0.5rem;
+    }
+
+    .dark {
+        --color-primary: #B6C63F;
+        --color-primary-foreground: #14170A;
+        --color-secondary: #5B9BD8;
+        --color-secondary-foreground: #08131F;
+        --color-background: #0B0C0D;
+        --color-foreground: #F2F2F3;
+        --color-card: #131416;
+        --color-card-foreground: #F2F2F3;
+        --color-popover: #131416;
+        --color-popover-foreground: #F2F2F3;
+        --color-muted: #1C1D20;
+        --color-muted-foreground: #A1A1AA;
+        --color-accent: #202124;
+        --color-accent-foreground: #F2F2F3;
+        --color-border: #2A2B2E;
+        --color-input: #2A2B2E;
+        --color-ring: #B6C63F;
+        --color-destructive: #F87171;
+        --color-destructive-foreground: #1A0B0B;
+    }
+}
+
 /* NFR-02 — Arabic needs a font with proper glyph coverage; the layout itself
    flips from the dir attribute alone because every spacing utility in these
    templates is logical (ms-/me-/ps-/pe-, text-start/text-end). */
 @layer base {
     [dir="rtl"] body {
         font-family: "Noto Sans Arabic", ui-sans-serif, system-ui, sans-serif;
+    }
+}
+
+/* Brand gradients — used sparingly, on the hero and a handful of accents. */
+@layer utilities {
+    .bg-gradient-hero {
+        background-image: linear-gradient(to top, rgb(0 0 0 / 0.9), rgb(0 0 0 / 0.4), transparent);
+    }
+    .bg-gradient-brand {
+        background-image: linear-gradient(to bottom right, var(--color-primary), rgb(182 198 63 / 0.7));
+    }
+    .bg-gradient-card-tint {
+        background-image: linear-gradient(to bottom right, rgb(182 198 63 / 0.2), rgb(50 116 174 / 0.2));
     }
 }

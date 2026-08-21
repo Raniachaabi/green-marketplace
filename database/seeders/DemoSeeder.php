@@ -27,7 +27,7 @@ class DemoSeeder extends Seeder
         $gate = app(PublishingGate::class);
 
         // ------------------------------------------------------- admin
-        $admin = $this->user('admin@greenmarketplace.tn', '+21670000000', 'Admin', isAdmin: true);
+        $admin = $this->user('admin@elmarche.tn', '+21670000000', 'Admin', isAdmin: true);
 
         // ---------------------------------------- Mohamed, input dealer
         $mohamed = $this->user('mohamed@example.tn', '+21698111111', 'Mohamed Ben Salah', governorate: 'beja');
@@ -151,7 +151,7 @@ class DemoSeeder extends Seeder
             ],
         );
 
-        $this->command?->info('  Demo data seeded. Admin: admin@greenmarketplace.tn / password');
+        $this->command?->info('  Demo data seeded. Admin: admin@elmarche.tn / password');
     }
 
     private function user(

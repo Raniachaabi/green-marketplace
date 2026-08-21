@@ -13,4 +13,5 @@ return [
     'unknown_seller' => 'Vendeur inconnu',
     'unknown_item' => 'Article',
     'footer_note' => 'Place de marché verte — les vendeurs sont vérifiés, chaque badge est justifié.',
+    'toggle_theme' => 'Basculer le mode sombre',
 ];
