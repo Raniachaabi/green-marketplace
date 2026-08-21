@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\GreenAttribute;
 use App\Models\Listing;
+use App\Models\RecentlyViewedListing;
 use App\Models\SearchQuery;
 use App\Models\User;
 use App\Services\GreenScoreCalculator;
@@ -16,7 +17,7 @@ class CatalogController extends Controller
 {
     public function __construct(private readonly GreenScoreCalculator $greenScore) {}
 
-    public function home(): View
+    public function home(Request $request): View
     {
         $roots = Category::active()->roots()->orderBy('display_order')->get();
 
@@ -74,9 +75,63 @@ class CatalogController extends Controller
             ->take(6)
             ->values();
 
-        return view('catalog.home', compact(
+        return view('catalog.home', array_merge(compact(
             'roots', 'rootCounts', 'inSeason', 'newest', 'servicesAndExperiences', 'featuredSellers',
-        ));
+        ), $this->personalization($request)));
+    }
+
+    /**
+     * Phase 2 §15 — deterministic, never machine-learned: recently viewed
+     * listings, "because you viewed X" from that listing's own category,
+     * and new listings from sellers the buyer actually follows. Every
+     * recommendation is a real, currently-active listing.
+     */
+    private function personalization(Request $request): array
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return ['recentlyViewed' => collect(), 'becauseYouViewed' => null, 'recommendedFor' => collect(), 'fromFollowedSellers' => collect()];
+        }
+
+        $recentlyViewed = Listing::active()
+            ->whereIn('id', RecentlyViewedListing::where('user_id', $user->id)
+                ->orderByDesc('viewed_at')->limit(8)->pluck('listing_id'))
+            ->with(['media', 'category', 'sellerUser', 'sellerOrg'])
+            ->withCount('reviews')->withAvg('reviews', 'rating')
+            ->get();
+
+        $lastViewedId = RecentlyViewedListing::where('user_id', $user->id)->orderByDesc('viewed_at')->value('listing_id');
+        $lastViewed = $lastViewedId ? Listing::find($lastViewedId) : null;
+
+        $recommendedFor = $lastViewed
+            ? Listing::active()->inSeason()
+                ->where('category_id', $lastViewed->category_id)
+                ->where('id', '!=', $lastViewed->id)
+                ->with(['media', 'category', 'sellerUser', 'sellerOrg'])
+                ->withCount('reviews')->withAvg('reviews', 'rating')
+                ->latest('published_at')
+                ->take(6)
+                ->get()
+            : collect();
+
+        $followedSellerIds = $user->followedSellerIds();
+        $fromFollowedSellers = $followedSellerIds->isNotEmpty()
+            ? Listing::active()->inSeason()
+                ->whereIn('seller_user_id', $followedSellerIds)
+                ->with(['media', 'category', 'sellerUser', 'sellerOrg'])
+                ->withCount('reviews')->withAvg('reviews', 'rating')
+                ->latest('published_at')
+                ->take(6)
+                ->get()
+            : collect();
+
+        return [
+            'recentlyViewed' => $recentlyViewed,
+            'becauseYouViewed' => $lastViewed,
+            'recommendedFor' => $recommendedFor,
+            'fromFollowedSellers' => $fromFollowedSellers,
+        ];
     }
 
     /** FR-050 to FR-053 — browse, search, filter, sort. */
@@ -235,6 +290,16 @@ class CatalogController extends Controller
             ->firstOrFail();
 
         $listing->increment('view_count');
+
+        // §15 — real browsing history for "recently viewed" / "because you
+        // viewed X" on the buyer's home page. Guests aren't tracked; there
+        // is nowhere personalized to show it to them anyway.
+        if ($request->user()) {
+            RecentlyViewedListing::updateOrCreate(
+                ['user_id' => $request->user()->id, 'listing_id' => $listing->id],
+                ['viewed_at' => now()],
+            );
+        }
 
         // Same category, not this listing, still buyable now — a cheap way
         // to keep a buyer on the site instead of bouncing after one item.

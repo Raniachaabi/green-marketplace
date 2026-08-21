@@ -70,6 +70,44 @@
         </div>
     </section>
 
+    {{-- Phase 2 §15 — buyer personalization. Deterministic, always real
+         listings, shown only when there is something real to base it on. --}}
+    @auth
+        @if($fromFollowedSellers->isNotEmpty())
+            <section class="mb-12">
+                <h2 class="mb-4 text-xl font-bold text-leaf-900 dark:text-foreground">{{ __('home.from_followed_sellers') }}</h2>
+                <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                    @foreach($fromFollowedSellers as $listing)
+                        <x-listing-card :listing="$listing" />
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
+        @if($becauseYouViewed && $recommendedFor->isNotEmpty())
+            <section class="mb-12">
+                <h2 class="mb-1 text-xl font-bold text-leaf-900 dark:text-foreground">{{ __('home.recommended_for_you') }}</h2>
+                <p class="mb-4 text-sm text-stone-500 dark:text-muted-foreground">{{ __('home.because_you_viewed', ['title' => $becauseYouViewed->name()]) }}</p>
+                <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                    @foreach($recommendedFor as $listing)
+                        <x-listing-card :listing="$listing" />
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
+        @if($recentlyViewed->isNotEmpty())
+            <section class="mb-12">
+                <h2 class="mb-4 text-xl font-bold text-leaf-900 dark:text-foreground">{{ __('home.recently_viewed') }}</h2>
+                <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                    @foreach($recentlyViewed as $listing)
+                        <x-listing-card :listing="$listing" />
+                    @endforeach
+                </div>
+            </section>
+        @endif
+    @endauth
+
     {{-- Categories --}}
     <section class="mb-12">
         <div class="mb-5 flex items-end justify-between">

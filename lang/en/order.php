@@ -49,6 +49,13 @@ return [
     ],
     'shipments_title' => 'Shipments',
     'tracking_ref' => 'Tracking',
+    'tracker' => [
+        'placed' => 'Order placed',
+        'preparing' => 'Preparing',
+        'picked_up' => 'Picked up',
+        'in_transit' => 'Shipped',
+        'delivered' => 'Delivered',
+    ],
     'reorder' => 'Buy again',
     'reorder_added' => 'Available items from this order were added to your cart.',
     'reorder_none_available' => 'Nothing from this order is available to buy again right now.',

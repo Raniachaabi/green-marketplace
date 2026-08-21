@@ -32,7 +32,8 @@ class DocumentNumberGenerator
                 ->where('type', $type)
                 ->where('year', $year)
                 ->lockForUpdate()
-                ->max('sequence');
+                ->orderByDesc('sequence')
+                ->value('sequence');
 
             $sequence = ((int) $last) + 1;
             $prefix = self::PREFIXES[$type] ?? strtoupper(substr($type, 0, 3));

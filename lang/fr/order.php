@@ -49,6 +49,13 @@ return [
     ],
     'shipments_title' => 'Livraisons',
     'tracking_ref' => 'Suivi',
+    'tracker' => [
+        'placed' => 'Commande passée',
+        'preparing' => 'Préparation',
+        'picked_up' => 'Pris en charge',
+        'in_transit' => 'Expédié',
+        'delivered' => 'Livré',
+    ],
     'reorder' => 'Racheter',
     'reorder_added' => 'Les articles disponibles de cette commande ont été ajoutés à votre panier.',
     'reorder_none_available' => 'Rien de cette commande n\'est disponible à l\'achat pour l\'instant.',

@@ -105,10 +105,10 @@
             @if($order->shipments->isNotEmpty())
                 <div class="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-card dark:border-border dark:bg-card">
                     <h2 class="border-b border-stone-200 px-4 py-2 font-semibold text-leaf-900 dark:border-border dark:text-foreground">{{ __('order.shipments_title') }}</h2>
-                    <ul class="divide-y divide-stone-100 text-sm dark:divide-border">
+                    <div class="divide-y divide-stone-100 dark:divide-border">
                         @foreach($order->shipments as $shipment)
-                            <li class="flex items-center justify-between gap-4 px-4 py-3">
-                                <div>
+                            <div class="px-4 py-4">
+                                <div class="mb-3 flex items-center justify-between gap-4 text-sm">
                                     <p class="font-medium text-leaf-900 dark:text-foreground">
                                         {{ $shipment->carrier?->name ?? __('order.shipment_method.'.$shipment->method) }}
                                     </p>
@@ -116,10 +116,10 @@
                                         <p class="text-xs text-stone-500 dark:text-muted-foreground">{{ __('order.tracking_ref') }}: {{ $shipment->tracking_ref }}</p>
                                     @endif
                                 </div>
-                                <x-status-badge :status="$shipment->status" />
-                            </li>
+                                <x-shipment-tracker :order="$order" :shipment="$shipment" />
+                            </div>
                         @endforeach
-                    </ul>
+                    </div>
                 </div>
             @endif
 

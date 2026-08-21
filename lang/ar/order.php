@@ -49,6 +49,13 @@ return [
     ],
     'shipments_title' => 'الشحنات',
     'tracking_ref' => 'التتبع',
+    'tracker' => [
+        'placed' => 'تم تقديم الطلب',
+        'preparing' => 'التجهيز',
+        'picked_up' => 'تم الاستلام للشحن',
+        'in_transit' => 'تم الشحن',
+        'delivered' => 'تم التسليم',
+    ],
     'reorder' => 'إعادة الشراء',
     'reorder_added' => 'أُضيفت العناصر المتوفرة من هذا الطلب إلى سلتك.',
     'reorder_none_available' => 'لا يوجد من هذا الطلب ما هو متاح للشراء حاليا.',
