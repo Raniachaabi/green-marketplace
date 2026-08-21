@@ -150,4 +150,14 @@ return [
     'storefront_no_listings' => 'Nothing live right now — check back soon.',
     'storefront_reviews' => 'reviews',
     'member_since' => 'Selling since :date',
+
+    'tab_about' => 'About',
+    'tab_products' => 'Products',
+    'tab_reviews' => 'Reviews',
+    'tab_certifications' => 'Certifications',
+    'tab_our_story' => 'Our story',
+    'about_no_bio' => 'This seller hasn\'t written a bio yet.',
+    'no_reviews' => 'No reviews yet.',
+    'no_certifications' => 'No public certifications yet.',
+    'no_story' => 'This seller hasn\'t shared their story yet.',
 ];

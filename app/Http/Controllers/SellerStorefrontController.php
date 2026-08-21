@@ -32,13 +32,22 @@ class SellerStorefrontController extends Controller
 
         $listingIds = $user->listings()->pluck('id');
 
+        $reviews = Review::where('target_type', 'listing')
+            ->whereIn('target_id', $listingIds)
+            ->with('author')
+            ->latest()
+            ->paginate(10, ['*'], 'reviews_page');
+
         return view('seller.storefront', [
             'seller' => $user,
             'listings' => $listings,
+            'reviews' => $reviews,
+            'reviewedListings' => $user->listings()->get(['id', 'title'])->keyBy('id'),
             'badges' => $user->activeBadges(),
             'ratingAverage' => round((float) Review::where('target_type', 'listing')->whereIn('target_id', $listingIds)->avg('rating'), 1),
             'ratingCount' => Review::where('target_type', 'listing')->whereIn('target_id', $listingIds)->count(),
             'followerCount' => $user->followerCount(),
+            'isVerified' => $user->isVerifiedSeller(),
             'isFollowing' => $request->user()?->isFollowing($user->id) ?? false,
         ]);
     }

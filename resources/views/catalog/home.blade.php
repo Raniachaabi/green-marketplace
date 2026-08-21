@@ -169,9 +169,7 @@
             @forelse($newest as $listing)
                 <x-listing-card :listing="$listing" />
             @empty
-                <p class="col-span-full rounded-2xl border border-dashed border-stone-300 bg-white py-12 text-center text-sm text-stone-500 dark:border-border dark:bg-card dark:text-muted-foreground">
-                    {{ __('home.empty') }}
-                </p>
+                <x-empty-state :message="__('home.empty')" />
             @endforelse
         </div>
     </section>
@@ -243,12 +241,7 @@
                             <p class="mt-3 line-clamp-2 text-sm leading-relaxed text-stone-500 dark:text-muted-foreground">{{ $bio }}</p>
                         @endif
                         @if($verified)
-                            <span class="mt-3 inline-flex items-center gap-1 rounded-full bg-leaf-50 px-2.5 py-1 text-[11px] font-semibold text-leaf-700 dark:bg-primary/10 dark:text-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="h-3 w-3">
-                                    <path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                {{ __('home.verified_seller') }}
-                            </span>
+                            <x-verification-badge class="mt-3" />
                         @endif
                     </div>
                 @endforeach

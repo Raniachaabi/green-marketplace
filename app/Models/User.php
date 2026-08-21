@@ -177,6 +177,15 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->relationLoaded('followers') ? $this->followers->count() : $this->followers()->count();
     }
 
+    /** Same "verified_seller" badge definition the catalog's verified-only filter uses. */
+    public function isVerifiedSeller(): bool
+    {
+        return $this->credentials()
+            ->approved()->unexpired()
+            ->whereHas('credentialType.badges', fn ($b) => $b->where('badges.code', 'verified_seller'))
+            ->exists();
+    }
+
     public function agreementAcceptances(): HasMany
     {
         return $this->hasMany(AgreementAcceptance::class);

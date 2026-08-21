@@ -150,4 +150,14 @@ return [
     'storefront_no_listings' => 'لا يوجد شيء منشور حاليا — تفقد لاحقا.',
     'storefront_reviews' => 'تقييمات',
     'member_since' => 'يبيع منذ :date',
+
+    'tab_about' => 'حول',
+    'tab_products' => 'المنتجات',
+    'tab_reviews' => 'التقييمات',
+    'tab_certifications' => 'الشهادات',
+    'tab_our_story' => 'قصتنا',
+    'about_no_bio' => 'لم يكتب هذا البائع نبذة تعريفية بعد.',
+    'no_reviews' => 'لا توجد تقييمات بعد.',
+    'no_certifications' => 'لا توجد شهادات معلنة حاليا.',
+    'no_story' => 'لم يشارك هذا البائع قصته بعد.',
 ];

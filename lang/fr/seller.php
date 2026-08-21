@@ -150,4 +150,14 @@ return [
     'storefront_no_listings' => 'Rien en ligne pour l\'instant — revenez bientôt.',
     'storefront_reviews' => 'avis',
     'member_since' => 'Vendeur depuis :date',
+
+    'tab_about' => 'À propos',
+    'tab_products' => 'Produits',
+    'tab_reviews' => 'Avis',
+    'tab_certifications' => 'Certifications',
+    'tab_our_story' => 'Notre histoire',
+    'about_no_bio' => 'Ce vendeur n\'a pas encore rédigé de présentation.',
+    'no_reviews' => 'Aucun avis pour le moment.',
+    'no_certifications' => 'Aucune certification publique pour le moment.',
+    'no_story' => 'Ce vendeur n\'a pas encore partagé son histoire.',
 ];

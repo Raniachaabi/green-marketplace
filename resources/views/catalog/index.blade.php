@@ -190,9 +190,7 @@
                 @forelse($listings as $listing)
                     <x-listing-card :listing="$listing" />
                 @empty
-                    <div class="col-span-full rounded-2xl border border-dashed border-stone-300 bg-white py-12 text-center dark:border-border dark:bg-card">
-                        <p class="text-sm text-stone-500 dark:text-muted-foreground">{{ __('catalog.empty') }}</p>
-                    </div>
+                    <x-empty-state :message="__('catalog.empty')" />
                 @endforelse
             </div>
 

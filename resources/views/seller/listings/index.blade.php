@@ -92,13 +92,7 @@
                 </div>
             </div>
         @empty
-            <div class="col-span-full rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-10 text-center dark:border-border dark:bg-muted/40">
-                <p class="text-sm text-stone-500 dark:text-muted-foreground">{{ __('seller.no_listings') }}</p>
-                <a href="{{ route('seller.listings.create') }}"
-                   class="mt-3 inline-block rounded-full bg-gradient-brand px-5 py-2 text-sm font-semibold text-white hover:opacity-90">
-                    {{ __('seller.new_listing') }}
-                </a>
-            </div>
+            <x-empty-state :message="__('seller.no_listings')" :action-label="__('seller.new_listing')" :action-href="route('seller.listings.create')" />
         @endforelse
     </div>
 
