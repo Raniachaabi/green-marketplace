@@ -84,14 +84,7 @@
 
                 @if($listing->reviewCount() > 0)
                     <a href="#reviews" class="mt-2 flex items-center gap-1.5 text-sm text-stone-600 hover:text-leaf-700 dark:text-muted-foreground dark:hover:text-primary">
-                        <span class="flex items-center gap-0.5">
-                            @for($i = 1; $i <= 5; $i++)
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                     class="h-4 w-4 {{ $i <= round($listing->averageRating()) ? 'text-amber-400' : 'text-stone-200 dark:text-muted' }}">
-                                    <path d="m12 2.5 2.9 6.3 6.8.7-5.1 4.6 1.5 6.7L12 17.6l-6.1 3.2 1.5-6.7-5.1-4.6 6.8-.7L12 2.5Z"/>
-                                </svg>
-                            @endfor
-                        </span>
+                        <x-rating :rating="$listing->averageRating()" size="h-4 w-4" />
                         <span class="font-semibold text-leaf-900 dark:text-foreground">{{ $listing->averageRating() }}</span>
                         <span>({{ trans_choice('listing.review_count', $listing->reviewCount(), ['count' => $listing->reviewCount()]) }})</span>
                     </a>
@@ -319,6 +312,20 @@
                 {{ __('listing.no_reviews') }}
             </p>
         @else
+            {{-- §16 — the rating distribution, so a 4.8 average isn't a black box. --}}
+            <div class="mb-5 space-y-1 rounded-2xl border border-stone-200 bg-white p-4 shadow-card dark:border-border dark:bg-card">
+                @foreach($ratingDistribution as $star => $count)
+                    <div class="flex items-center gap-2 text-xs text-stone-500 dark:text-muted-foreground">
+                        <span class="w-8 shrink-0">{{ $star }} ★</span>
+                        <span class="h-2 flex-1 overflow-hidden rounded-full bg-stone-100 dark:bg-muted">
+                            <span class="block h-full rounded-full bg-amber-400"
+                                  style="width: {{ $listing->reviewCount() ? round($count / $listing->reviewCount() * 100) : 0 }}%"></span>
+                        </span>
+                        <span class="w-6 shrink-0 text-end">{{ $count }}</span>
+                    </div>
+                @endforeach
+            </div>
+
             <div class="space-y-4">
                 @foreach($listing->reviews as $review)
                     <div class="rounded-2xl border border-stone-200 bg-white p-4 shadow-card dark:border-border dark:bg-card">
@@ -327,21 +334,60 @@
                                 <span class="flex h-7 w-7 items-center justify-center rounded-full bg-leaf-100 text-xs font-bold uppercase text-leaf-700 dark:bg-primary/15 dark:text-primary">
                                     {{ Illuminate\Support\Str::substr($review->author?->full_name ?? '?', 0, 1) }}
                                 </span>
-                                <span class="text-sm font-semibold text-leaf-900 dark:text-foreground">{{ $review->author?->full_name ?? __('common.unknown_seller') }}</span>
+                                <span>
+                                    <span class="block text-sm font-semibold text-leaf-900 dark:text-foreground">{{ $review->author?->full_name ?? __('common.unknown_seller') }}</span>
+                                    <span class="flex items-center gap-1 text-[11px] font-medium text-leaf-700 dark:text-primary">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="h-3 w-3">
+                                            <path d="m5 13 4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        {{ __('listing.verified_purchase') }}
+                                    </span>
+                                </span>
                             </div>
-                            <span class="flex items-center gap-0.5">
-                                @for($i = 1; $i <= 5; $i++)
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                         class="h-3.5 w-3.5 {{ $i <= $review->rating ? 'text-amber-400' : 'text-stone-200 dark:text-muted' }}">
-                                        <path d="m12 2.5 2.9 6.3 6.8.7-5.1 4.6 1.5 6.7L12 17.6l-6.1 3.2 1.5-6.7-5.1-4.6 6.8-.7L12 2.5Z"/>
-                                    </svg>
-                                @endfor
-                            </span>
+                            <x-rating :rating="$review->rating" />
                         </div>
                         @if($review->body)
                             <p class="mt-2 text-sm text-stone-700 dark:text-muted-foreground">{{ $review->body }}</p>
                         @endif
                         <p class="mt-2 text-xs text-stone-400 dark:text-muted-foreground/70">{{ $review->created_at->format('d/m/Y') }}</p>
+
+                        @if($review->hasSellerResponse())
+                            <div class="mt-3 rounded-xl bg-stone-50 p-3 text-sm dark:bg-muted/40">
+                                <p class="mb-1 text-xs font-semibold text-leaf-700 dark:text-primary">{{ __('listing.seller_response') }}</p>
+                                <p class="text-stone-700 dark:text-muted-foreground">{{ $review->seller_response }}</p>
+                            </div>
+                        @elseif($isListingOwner)
+                            <form method="post" action="{{ route('reviews.respond', $review) }}" class="mt-3 flex items-end gap-2">
+                                @csrf
+                                <textarea name="seller_response" rows="1" required maxlength="2000"
+                                          placeholder="{{ __('listing.seller_response_placeholder') }}"
+                                          class="flex-1 rounded-lg border-stone-300 text-sm focus:border-primary focus:ring-primary dark:border-input dark:bg-muted dark:text-foreground"></textarea>
+                                <button class="shrink-0 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90">
+                                    {{ __('common.save') }}
+                                </button>
+                            </form>
+                        @endif
+
+                        @auth
+                            @if(auth()->id() !== $review->author_user_id)
+                                <details class="mt-3 text-xs text-stone-400 dark:text-muted-foreground">
+                                    <summary class="cursor-pointer select-none hover:underline">{{ __('listing.report_review') }}</summary>
+                                    <form method="post" action="{{ route('reviews.report', $review) }}" class="mt-2 flex items-center gap-2">
+                                        @csrf
+                                        <select name="reason" required
+                                                class="rounded-lg border-stone-300 text-xs focus:border-primary focus:ring-primary dark:border-input dark:bg-muted dark:text-foreground">
+                                            <option value="spam">{{ __('listing.report_reason_spam') }}</option>
+                                            <option value="offensive">{{ __('listing.report_reason_offensive') }}</option>
+                                            <option value="fake">{{ __('listing.report_reason_fake') }}</option>
+                                            <option value="other">{{ __('listing.report_reason_other') }}</option>
+                                        </select>
+                                        <button class="rounded-full border border-stone-300 px-3 py-1 font-medium text-stone-600 hover:bg-stone-50 dark:border-border dark:text-muted-foreground dark:hover:bg-accent">
+                                            {{ __('listing.submit_report') }}
+                                        </button>
+                                    </form>
+                                </details>
+                            @endif
+                        @endauth
                     </div>
                 @endforeach
             </div>

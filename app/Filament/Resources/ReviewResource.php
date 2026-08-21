@@ -21,18 +21,32 @@ class ReviewResource extends Resource
 
     protected static ?string $navigationGroup = 'Trust & Safety';
 
+    /** Reported reviews are the operator's to-do list here. */
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getModel()::whereHas('reports')->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'danger';
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([
             Forms\Components\TextInput::make('rating')->disabled(),
             Forms\Components\Textarea::make('body')->disabled()->rows(4),
+            Forms\Components\Textarea::make('seller_response')->label('Seller response')->disabled()->rows(3),
         ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->with('author'))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('author')->withCount('reports'))
             ->columns([
                 Tables\Columns\TextColumn::make('author.full_name')->label('Author')->searchable(),
                 Tables\Columns\TextColumn::make('target')
@@ -43,12 +57,20 @@ class ReviewResource extends Resource
                 Tables\Columns\TextColumn::make('rating')
                     ->formatStateUsing(fn (int $state) => str_repeat('★', $state).str_repeat('☆', 5 - $state)),
                 Tables\Columns\TextColumn::make('body')->limit(60)->placeholder('—'),
+                Tables\Columns\TextColumn::make('reports_count')
+                    ->label('Reports')
+                    ->badge()
+                    ->color(fn (int $state) => $state > 0 ? 'danger' : 'gray')
+                    ->visibleFrom('md'),
                 Tables\Columns\TextColumn::make('created_at')->since()->sortable(),
             ])
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('reports_count', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('rating')
                     ->options(['1' => '1', '2' => '2', '3' => '3', '4' => '4', '5' => '5']),
+                Tables\Filters\Filter::make('reported')
+                    ->query(fn (Builder $query) => $query->whereHas('reports'))
+                    ->toggle(),
             ])
             ->actions([
                 Tables\Actions\DeleteAction::make()

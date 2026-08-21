@@ -26,4 +26,5 @@ return [
     'credential_submitted' => ':holder submitted a :type credential for review.',
     'platform_announcement' => ':title — :body',
     'review_reminder' => 'How was ":title"? Leave a review to help other buyers.',
+    'review_reported' => 'A review was reported (:reason).',
 ];

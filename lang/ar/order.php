@@ -58,4 +58,6 @@ return [
     'review_submitted' => 'شكرا — تم نشر تقييمك.',
     'review_submitted_short' => 'تم التقييم',
     'review_already_submitted' => 'لقد قيّمت هذا العنصر من قبل.',
+    'review_response_saved' => 'تم نشر ردك.',
+    'review_reported' => 'شكرا — لقد أبلغنا فريقنا بهذا التقييم.',
 ];

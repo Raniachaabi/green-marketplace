@@ -163,6 +163,11 @@ class CatalogController extends Controller
             'alreadySubscribedToRestock' => $request->user()
                 ? $listing->restockAlerts()->pending()->where('user_id', $request->user()->id)->exists()
                 : false,
+            'ratingDistribution' => $listing->ratingDistribution(),
+            'isListingOwner' => $request->user()
+                ? $request->user()->id === $listing->seller_user_id
+                    || ($listing->seller_org_id && $request->user()->organizations()->where('organizations.id', $listing->seller_org_id)->exists())
+                : false,
         ]);
     }
 }

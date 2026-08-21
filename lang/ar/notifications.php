@@ -26,4 +26,5 @@ return [
     'credential_submitted' => ':holder قدّم وثيقة :type للمراجعة.',
     'platform_announcement' => ':title — :body',
     'review_reminder' => 'كيف كان ":title"؟ اترك تقييما لمساعدة المشترين الآخرين.',
+    'review_reported' => 'تم الإبلاغ عن تقييم (:reason).',
 ];

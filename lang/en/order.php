@@ -58,4 +58,6 @@ return [
     'review_submitted' => 'Thanks — your review was posted.',
     'review_submitted_short' => 'Reviewed',
     'review_already_submitted' => 'You already reviewed this item.',
+    'review_response_saved' => 'Your response was posted.',
+    'review_reported' => 'Thanks — we\'ve flagged this review for our team.',
 ];

@@ -26,4 +26,5 @@ return [
     'credential_submitted' => ':holder a soumis un justificatif :type pour examen.',
     'platform_announcement' => ':title — :body',
     'review_reminder' => 'Comment était « :title » ? Laissez un avis pour aider les autres acheteurs.',
+    'review_reported' => 'Un avis a été signalé (:reason).',
 ];

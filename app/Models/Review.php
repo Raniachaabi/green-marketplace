@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Review extends Model
 {
@@ -21,6 +22,7 @@ class Review extends Model
             'dimensions' => 'array',
             'media_paths' => 'array',
             'rating' => 'integer',
+            'seller_response_at' => 'datetime',
         ];
     }
 
@@ -32,5 +34,15 @@ class Review extends Model
     public function orderLine(): BelongsTo
     {
         return $this->belongsTo(OrderLine::class);
+    }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(ReviewReport::class);
+    }
+
+    public function hasSellerResponse(): bool
+    {
+        return $this->seller_response !== null;
     }
 }

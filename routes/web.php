@@ -75,6 +75,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/mes-commandes/{order}/racheter', [OrderController::class, 'reorder'])->name('orders.reorder');
 
     Route::post('/avis/{orderLine}', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::post('/avis/{review}/reponse', [ReviewController::class, 'respond'])->name('reviews.respond');
+    Route::post('/avis/{review}/signaler', [ReviewController::class, 'report'])->name('reviews.report');
 
     Route::get('/admin/justificatifs/{credential}/document', [CredentialDocumentController::class, 'show'])->name('admin.credentials.document');
     Route::get('/admin/paiements/{payment}/preuve', [PaymentProofController::class, 'show'])->name('admin.payments.proof');

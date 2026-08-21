@@ -58,4 +58,6 @@ return [
     'review_submitted' => 'Merci — votre avis a été publié.',
     'review_submitted_short' => 'Avis laissé',
     'review_already_submitted' => 'Vous avez déjà donné votre avis sur cet article.',
+    'review_response_saved' => 'Votre réponse a été publiée.',
+    'review_reported' => "Merci — nous avons signalé cet avis à notre équipe.",
 ];

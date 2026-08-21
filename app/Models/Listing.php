@@ -200,6 +200,15 @@ class Listing extends Model
         return $this->relationLoaded('reviews') ? $this->reviews->count() : $this->reviews()->count();
     }
 
+    /** §16 — counts per star (5 down to 1), for the rating histogram. */
+    public function ratingDistribution(): array
+    {
+        $reviews = $this->relationLoaded('reviews') ? $this->reviews : $this->reviews()->get();
+        $counts = $reviews->countBy('rating');
+
+        return collect(range(5, 1))->mapWithKeys(fn ($star) => [$star => $counts->get($star, 0)])->all();
+    }
+
     /** Read one category-driven attribute value. */
     public function attr(string $key, mixed $default = null): mixed
     {
