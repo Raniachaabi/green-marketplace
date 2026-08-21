@@ -16,11 +16,10 @@
 
 @section('content')
     {{-- Hero --}}
-    <section class="relative mb-12 overflow-hidden rounded-3xl bg-leaf-800 px-6 py-14 text-white sm:px-12 sm:py-20">
-        <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-            <div class="absolute -end-20 -top-20 h-72 w-72 rounded-full bg-leaf-500/30 blur-3xl"></div>
-            <div class="absolute -bottom-28 -start-14 h-72 w-72 rounded-full bg-leaf-400/20 blur-3xl"></div>
-        </div>
+    <section class="relative mb-12 overflow-hidden rounded-3xl px-6 py-14 text-white sm:px-12 sm:py-20">
+        <img src="{{ asset('images/hero.jpg') }}" alt=""
+             class="absolute inset-0 h-full w-full object-cover" aria-hidden="true">
+        <div class="absolute inset-0 bg-gradient-to-t from-leaf-900/90 via-leaf-900/60 to-leaf-900/20" aria-hidden="true"></div>
 
         <div class="relative max-w-2xl">
             <span class="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-leaf-50 ring-1 ring-white/20">
@@ -76,17 +75,20 @@
         <div class="mb-5 flex items-end justify-between">
             <h2 class="text-xl font-bold text-leaf-900">{{ __('home.categories') }}</h2>
         </div>
-        <div class="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <div class="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
             @foreach($roots as $category)
                 <a href="{{ route('catalog.index', ['category' => $category->slug]) }}"
-                   class="group flex flex-col items-center gap-3 rounded-2xl border border-stone-200 bg-white p-5 text-center shadow-card transition hover:-translate-y-0.5 hover:border-leaf-300 hover:shadow-card-hover">
-                    <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-leaf-50 text-leaf-700 transition group-hover:bg-leaf-600 group-hover:text-white">
+                   class="group flex items-center gap-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-card transition hover:-translate-y-0.5 hover:border-leaf-300 hover:shadow-card-hover">
+                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-leaf-50 text-leaf-700 transition group-hover:bg-leaf-600 group-hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="h-6 w-6">
                             <path d="{{ $categoryIcons[$category->slug] ?? $defaultIcon }}"
                                   stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </span>
-                    <span class="text-sm font-semibold text-leaf-900">{{ $category->name() }}</span>
+                    <span class="min-w-0 text-start">
+                        <span class="block truncate text-sm font-semibold text-leaf-900">{{ $category->name() }}</span>
+                        <span class="block text-xs text-stone-500">{{ __('home.listing_count', ['count' => $rootCounts[$category->id] ?? 0]) }}</span>
+                    </span>
                 </a>
             @endforeach
         </div>
@@ -135,4 +137,84 @@
             @endforelse
         </div>
     </section>
+
+    {{-- How it works — the credential-driven trust story, in three steps. --}}
+    <section class="my-16 -mx-4 bg-stone-100/70 px-4 py-12 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <h2 class="mb-8 text-center text-xl font-bold text-leaf-900">{{ __('home.how_it_works') }}</h2>
+        <div class="mx-auto grid max-w-5xl gap-6 sm:grid-cols-3">
+            @foreach([
+                ['icon' => 'M9 12h6M9 16h6M9 8h3M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z', 'title' => 'how_it_works_1_title', 'body' => 'how_it_works_1_body'],
+                ['icon' => 'M9 12.5l2 2 4-4.5M12 3l8 4v5c0 4.5-3.4 8.4-8 9-4.6-.6-8-4.5-8-9V7l8-4Z', 'title' => 'how_it_works_2_title', 'body' => 'how_it_works_2_body'],
+                ['icon' => 'M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z', 'title' => 'how_it_works_3_title', 'body' => 'how_it_works_3_body'],
+            ] as $step)
+                <div class="rounded-2xl bg-white p-6 text-center shadow-card">
+                    <span class="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-leaf-50 text-leaf-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="h-5 w-5">
+                            <path d="{{ $step['icon'] }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <h3 class="mt-4 text-sm font-semibold text-leaf-900">{{ __('home.'.$step['title']) }}</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-stone-500">{{ __('home.'.$step['body']) }}</p>
+                </div>
+            @endforeach
+        </div>
+    </section>
+
+    @if($servicesAndExperiences->isNotEmpty())
+        <section class="mb-12">
+            <div class="mb-5 flex items-end justify-between">
+                <h2 class="text-xl font-bold text-leaf-900">{{ __('home.services_experiences') }}</h2>
+            </div>
+            <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach($servicesAndExperiences as $listing)
+                    <x-listing-card :listing="$listing" />
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    @if($featuredSellers->isNotEmpty())
+        <section class="mb-4">
+            <div class="mb-5 flex items-end justify-between">
+                <h2 class="text-xl font-bold text-leaf-900">{{ __('home.sellers') }}</h2>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach($featuredSellers as $seller)
+                    @php
+                        $isOrg = $seller instanceof \App\Models\Organization;
+                        $label = $isOrg ? $seller->legal_name : $seller->full_name;
+                        $sub = $isOrg ? __('organization.type.'.$seller->type) : null;
+                        $bio = $isOrg ? $seller->story : $seller->bio;
+                        $verified = $isOrg && $seller->verified_at;
+                    @endphp
+                    <div class="rounded-2xl border border-stone-200 bg-white p-5 shadow-card">
+                        <div class="flex items-start gap-3">
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-sm font-bold uppercase text-leaf-700">
+                                {{ Illuminate\Support\Str::substr($label, 0, 1) }}
+                            </span>
+                            <div class="min-w-0">
+                                <p class="truncate text-sm font-semibold text-leaf-900">{{ $label }}</p>
+                                @if($sub || $seller->governorate)
+                                    <p class="truncate text-xs text-stone-500">
+                                        {{ $sub }}{{ $sub && $seller->governorate ? ' · ' : '' }}{{ $seller->governorate ? __('governorate.'.$seller->governorate) : '' }}
+                                    </p>
+                                @endif
+                            </div>
+                        </div>
+                        @if($bio)
+                            <p class="mt-3 line-clamp-2 text-sm leading-relaxed text-stone-500">{{ $bio }}</p>
+                        @endif
+                        @if($verified)
+                            <span class="mt-3 inline-flex items-center gap-1 rounded-full bg-leaf-50 px-2.5 py-1 text-[11px] font-semibold text-leaf-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="h-3 w-3">
+                                    <path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                {{ __('home.verified_seller') }}
+                            </span>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </section>
+    @endif
 @endsection

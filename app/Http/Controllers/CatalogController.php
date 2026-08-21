@@ -14,6 +14,14 @@ class CatalogController extends Controller
     {
         $roots = Category::active()->roots()->orderBy('display_order')->get();
 
+        // One listing count per root, including its descendants — matches
+        // the same "path like" widening the catalogue filter uses.
+        $rootCounts = $roots->mapWithKeys(fn (Category $root) => [
+            $root->id => Listing::active()->inSeason()
+                ->whereIn('category_id', Category::where('path', 'like', $root->path.'%')->pluck('id'))
+                ->count(),
+        ]);
+
         // FR-054 — "in season now". The single most useful home block in an
         // agricultural marketplace, because half the catalogue is only
         // meaningful for a few weeks a year.
@@ -27,12 +35,39 @@ class CatalogController extends Controller
 
         $newest = Listing::active()
             ->inSeason()
+            ->whereHas('category', fn ($q) => $q->where('listing_type', 'product'))
             ->with(['media', 'category', 'sellerUser', 'sellerOrg', 'greenAttributes'])
             ->latest('published_at')
             ->take(12)
             ->get();
 
-        return view('catalog.home', compact('roots', 'inSeason', 'newest'));
+        // Services, experiences and rentals get their own strip — a farm
+        // workshop shouldn't be buried in a grid of seed packets.
+        $servicesAndExperiences = Listing::active()
+            ->inSeason()
+            ->whereHas('category', fn ($q) => $q->whereIn('listing_type', ['service', 'experience', 'rental']))
+            ->with(['media', 'category', 'sellerUser', 'sellerOrg', 'greenAttributes'])
+            ->latest('published_at')
+            ->take(6)
+            ->get();
+
+        // A handful of sellers with something live right now, for the trust
+        // section — no seller storefront page exists yet, so these are
+        // informational cards rather than links.
+        $featuredSellers = Listing::active()
+            ->inSeason()
+            ->with(['sellerUser', 'sellerOrg'])
+            ->latest('published_at')
+            ->get()
+            ->map(fn (Listing $l) => $l->seller())
+            ->filter()
+            ->unique(fn ($seller) => $seller::class.':'.$seller->id)
+            ->take(6)
+            ->values();
+
+        return view('catalog.home', compact(
+            'roots', 'rootCounts', 'inSeason', 'newest', 'servicesAndExperiences', 'featuredSellers',
+        ));
     }
 
     /** FR-050 to FR-053 — browse, search, filter, sort. */
