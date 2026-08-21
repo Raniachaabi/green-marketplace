@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\GreenAttribute;
 use App\Models\Listing;
+use App\Services\GreenScoreCalculator;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CatalogController extends Controller
 {
+    public function __construct(private readonly GreenScoreCalculator $greenScore) {}
+
     public function home(): View
     {
         $roots = Category::active()->roots()->orderBy('display_order')->get();
@@ -156,6 +159,7 @@ class CatalogController extends Controller
             'priceCap' => $listing->category->activePriceCap(),
             'badges' => $listing->seller()?->activeBadges() ?? collect(),
             'similar' => $similar,
+            'greenScore' => $this->greenScore->scoreFor($listing),
         ]);
     }
 }

@@ -145,6 +145,8 @@
                 @endif
             </div>
 
+            <x-green-score :result="$greenScore" />
+
             @if($priceCap)
                 {{-- FR-014 — the ceiling is shown publicly. A constraint
                      disclosed is a trust signal; a constraint hidden is a

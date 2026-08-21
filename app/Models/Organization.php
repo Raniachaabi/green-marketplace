@@ -59,6 +59,19 @@ class Organization extends Model
             ->values();
     }
 
+    /** Mirrors User::activeBadges() — an organization-held credential earns the same badges. */
+    public function activeBadges(): Collection
+    {
+        return $this->credentials()
+            ->with('credentialType.badges')
+            ->approved()
+            ->unexpired()
+            ->get()
+            ->flatMap(fn (Credential $c) => $c->credentialType?->badges ?? collect())
+            ->unique('code')
+            ->values();
+    }
+
     /**
      * FR-005 — member shares must total 100% before a payout can be split.
      * Checked at payout time rather than on save, because a collective is

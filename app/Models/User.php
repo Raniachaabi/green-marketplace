@@ -46,7 +46,10 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->is_admin;
+        // A freshly created instance can have is_admin still unset (null) in
+        // memory until the model is re-fetched — cast explicitly so a plain
+        // buyer visiting /admin gets a clean deny, not a TypeError.
+        return (bool) $this->is_admin;
     }
 
     // ---------------------------------------------------------------- roles

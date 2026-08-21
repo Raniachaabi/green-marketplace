@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CredentialTypeSeeder::class,
             GreenAttributeSeeder::class,
+            GreenScoreRuleSeeder::class,
             CategorySeeder::class,
             ReferenceDataSeeder::class,
             DemoSeeder::class,
