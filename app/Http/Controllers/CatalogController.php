@@ -129,7 +129,7 @@ class CatalogController extends Controller
         ]);
     }
 
-    public function show(string $slug): View
+    public function show(Request $request, string $slug): View
     {
         $listing = Listing::active()
             ->where('slug', $slug)
@@ -160,6 +160,9 @@ class CatalogController extends Controller
             'badges' => $listing->seller()?->activeBadges() ?? collect(),
             'similar' => $similar,
             'greenScore' => $this->greenScore->scoreFor($listing),
+            'alreadySubscribedToRestock' => $request->user()
+                ? $listing->restockAlerts()->pending()->where('user_id', $request->user()->id)->exists()
+                : false,
         ]);
     }
 }

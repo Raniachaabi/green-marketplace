@@ -279,6 +279,29 @@
             @else
                 <p class="rounded-2xl bg-stone-100 p-4 text-sm text-stone-600 dark:bg-muted dark:text-muted-foreground">{{ __('listing.booking_only') }}</p>
             @endif
+
+            {{-- Phase 2 §5 — restock alerts. --}}
+            @if($listing->isOutOfStock())
+                <div class="rounded-2xl border border-stone-200 bg-stone-50 p-4 text-center dark:border-border dark:bg-muted/40">
+                    <p class="mb-2 text-sm font-medium text-stone-700 dark:text-muted-foreground">{{ __('restock.unavailable') }}</p>
+                    @auth
+                        @if($alreadySubscribedToRestock)
+                            <p class="text-sm text-leaf-700 dark:text-primary">{{ __('restock.already_subscribed') }}</p>
+                        @else
+                            <form method="post" action="{{ route('restock_alerts.store', $listing) }}">
+                                @csrf
+                                <button class="rounded-full bg-gradient-brand px-5 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90">
+                                    {{ __('restock.notify_me') }}
+                                </button>
+                            </form>
+                        @endif
+                    @else
+                        <a href="{{ route('login.show') }}" class="text-sm font-semibold text-leaf-700 underline dark:text-primary">
+                            {{ __('restock.notify_me') }}
+                        </a>
+                    @endauth
+                </div>
+            @endif
         </div>
     </div>
 

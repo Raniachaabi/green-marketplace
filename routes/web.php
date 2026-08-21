@@ -14,6 +14,7 @@ use App\Http\Controllers\FollowController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\RestockAlertController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SellerListingController;
 use App\Http\Controllers\SellerOnboardingController;
@@ -86,6 +87,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/favoris/{listing}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 
     Route::get('/abonnements', [FollowController::class, 'index'])->name('following.index');
+
+    Route::post('/listing/{listing}/alerte-stock', [RestockAlertController::class, 'store'])->name('restock_alerts.store');
 
     Route::prefix('adresses')->name('addresses.')->group(function () {
         Route::get('/', [AddressController::class, 'index'])->name('index');

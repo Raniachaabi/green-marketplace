@@ -16,4 +16,5 @@ return [
     'order_status_changed' => 'طلبك :number أصبح الآن ":status".',
     'review_received' => 'تقييم جديد: :rating/5.',
     'followed_seller_new_listing' => ':seller الذي تتابعه أضاف للتو ":title".',
+    'restock_available' => 'خبر سار! ":title" متوفر الآن من جديد.',
 ];

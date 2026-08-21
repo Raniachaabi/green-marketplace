@@ -4,11 +4,13 @@ namespace App\Observers;
 
 use App\Enums\ListingStatus;
 use App\Models\Listing;
+use App\Models\RestockAlert;
 use App\Models\User;
 use App\Notifications\FollowedSellerNewListing;
 use App\Notifications\ListingApproved;
 use App\Notifications\ListingRejected;
 use App\Notifications\ListingSuspended;
+use App\Notifications\RestockAvailable;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
@@ -62,6 +64,8 @@ class ListingObserver
      */
     public function updated(Listing $listing): void
     {
+        $this->notifyRestockSubscribers($listing);
+
         if (! $listing->wasChanged('status') || ! $listing->sellerUser) {
             return;
         }
@@ -78,6 +82,31 @@ class ListingObserver
         if ($isFirstPublish) {
             $this->notifyFollowers($listing);
         }
+    }
+
+    /**
+     * Phase 2 §5 — fires once stock goes from "none" to "some" on a listing
+     * that is actually live. Every pending subscriber is notified and their
+     * row is marked fulfilled in the same pass, so nobody is notified twice.
+     */
+    private function notifyRestockSubscribers(Listing $listing): void
+    {
+        if (! $listing->wasChanged('stock')
+            || (float) $listing->getOriginal('stock') > 0
+            || $listing->stock <= 0
+            || $listing->status !== ListingStatus::Active) {
+            return;
+        }
+
+        $alerts = $listing->restockAlerts()->pending()->with('user')->get();
+
+        if ($alerts->isEmpty()) {
+            return;
+        }
+
+        Notification::send($alerts->pluck('user')->filter(), new RestockAvailable($listing));
+
+        RestockAlert::whereIn('id', $alerts->pluck('id'))->update(['notified_at' => now()]);
     }
 
     /**

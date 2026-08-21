@@ -107,6 +107,17 @@ class Listing extends Model
         return $this->hasMany(Review::class, 'target_id')->where('target_type', 'listing');
     }
 
+    public function restockAlerts(): HasMany
+    {
+        return $this->hasMany(RestockAlert::class);
+    }
+
+    /** §5 — a buyer can subscribe only while this is genuinely out of stock. */
+    public function isOutOfStock(): bool
+    {
+        return $this->availability_model->tracksStock() && $this->stock <= 0;
+    }
+
     // ----------------------------------------------------------- scopes
 
     public function scopeActive(Builder $query): Builder
