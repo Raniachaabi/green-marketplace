@@ -91,6 +91,21 @@ class BankTransferPaymentTest extends TestCase
         $this->assertSame(PaymentStatus::PendingCod, Payment::first()->status);
     }
 
+    public function test_checkout_rejects_an_unrecognised_payment_method_instead_of_defaulting_to_cod(): void
+    {
+        [$buyer, $address, $listing] = $this->checkoutSetup();
+
+        $this->actingAs($buyer)->post(route('cart.add', $listing));
+
+        $this->actingAs($buyer)->post(route('checkout.store'), [
+            'address_id' => $address->id,
+            'payment_method' => 'bitcoin',
+            'accept_terms' => '1',
+        ])->assertSessionHasErrors('payment_method');
+
+        $this->assertSame(0, Payment::count());
+    }
+
     public function test_an_admin_can_confirm_a_payment_via_the_admin_action_layer(): void
     {
         Storage::fake('payment_proofs');

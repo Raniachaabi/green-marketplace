@@ -12,6 +12,7 @@ use App\Services\OrderPlacer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use RuntimeException;
 
@@ -54,7 +55,10 @@ class CheckoutController extends Controller
 
         $validated = $request->validate([
             'address_id' => ['required', 'uuid'],
-            'payment_method' => ['required', 'string'],
+            // An unrecognised value must not silently fall back to COD —
+            // it belongs in $method above only as a best guess for the
+            // proof-file rule below; this is what actually rejects it.
+            'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
             'note' => ['nullable', 'string', 'max:1000'],
             // A bank transfer needs proof before it can be confirmed —
             // required only for that method, never for COD.
