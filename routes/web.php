@@ -21,6 +21,7 @@ use App\Http\Controllers\SellerListingController;
 use App\Http\Controllers\SellerOnboardingController;
 use App\Http\Controllers\SellerOrderController;
 use App\Http\Controllers\SellerStorefrontController;
+use App\Http\Controllers\SellerStoryController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -126,5 +127,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/commandes', [SellerOrderController::class, 'index'])->name('orders.index');
         Route::get('/commandes/{order}', [SellerOrderController::class, 'show'])->name('orders.show');
         Route::patch('/commandes/{order}/expeditions/{shipment}', [SellerOrderController::class, 'updateShipment'])->name('orders.shipment.update');
+
+        Route::get('/histoire', [SellerStoryController::class, 'show'])->name('story.show');
+        Route::put('/histoire', [SellerStoryController::class, 'update'])->name('story.update');
     });
 });

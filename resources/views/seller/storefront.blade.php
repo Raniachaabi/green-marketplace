@@ -3,6 +3,12 @@
 @section('meta_description', \Illuminate\Support\Str::limit(strip_tags($seller->bio ?? ''), 160) ?: __('seller.storefront_listings').' — '.$seller->full_name)
 
 @section('content')
+    @if($seller->coverUrl())
+        <div class="mb-4 h-40 w-full overflow-hidden rounded-2xl sm:h-56">
+            <img src="{{ $seller->coverUrl() }}" alt="" class="h-full w-full object-cover">
+        </div>
+    @endif
+
     <div class="mb-8 flex flex-col items-start gap-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-card sm:flex-row sm:items-center dark:border-border dark:bg-card">
         <span class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-brand text-xl font-bold uppercase text-white">
             {{ Illuminate\Support\Str::substr($seller->full_name, 0, 1) }}
@@ -70,4 +76,31 @@
     </div>
 
     <div class="mt-8">{{ $listings->links() }}</div>
+
+    {{-- Phase 2 §8/§14 — "Meet the Producer". Shown only if the seller filled it in. --}}
+    @if($seller->hasStory())
+        <section class="mt-12 rounded-2xl border border-stone-200 bg-white p-6 shadow-card dark:border-border dark:bg-card">
+            <h2 class="mb-4 text-lg font-semibold text-leaf-900 dark:text-foreground">{{ __('seller.meet_the_producer') }}</h2>
+
+            <div class="mb-4 flex flex-wrap gap-x-6 gap-y-1 text-sm text-stone-500 dark:text-muted-foreground">
+                @if($seller->yearsActive() !== null)
+                    <span>{{ trans_choice('seller.years_active', $seller->yearsActive(), ['count' => $seller->yearsActive()]) }}</span>
+                @endif
+                @if($seller->production_method)
+                    <span>{{ $seller->production_method }}</span>
+                @endif
+            </div>
+
+            @if($seller->story)
+                <p class="mb-4 whitespace-pre-line text-sm leading-relaxed text-stone-700 dark:text-muted-foreground">{{ $seller->story }}</p>
+            @endif
+
+            @if($seller->mission)
+                <div class="rounded-xl bg-leaf-50 p-4 text-sm text-leaf-800 dark:bg-primary/10 dark:text-primary">
+                    <p class="mb-1 text-xs font-semibold uppercase tracking-wide">{{ __('seller.mission') }}</p>
+                    {{ $seller->mission }}
+                </div>
+            @endif
+        </section>
+    @endif
 @endsection

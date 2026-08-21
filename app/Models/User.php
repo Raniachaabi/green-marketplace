@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable implements FilamentUser, HasName
 {
@@ -20,6 +21,7 @@ class User extends Authenticatable implements FilamentUser, HasName
     protected $fillable = [
         'phone', 'email', 'full_name', 'password', 'preferred_locale',
         'status', 'bio', 'slug', 'avatar_path', 'notify_social', 'notify_announcements',
+        'cover_path', 'story', 'production_method', 'mission', 'founding_year',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -209,6 +211,22 @@ class User extends Authenticatable implements FilamentUser, HasName
             ->pluck('credential_type_code')
             ->unique()
             ->values();
+    }
+
+    /** §8/§14 — whether there's anything to show in the storefront's "Our Story" tab. */
+    public function hasStory(): bool
+    {
+        return filled($this->story) || filled($this->production_method) || filled($this->mission) || $this->founding_year !== null;
+    }
+
+    public function yearsActive(): ?int
+    {
+        return $this->founding_year ? max(0, now()->year - $this->founding_year) : null;
+    }
+
+    public function coverUrl(): ?string
+    {
+        return $this->cover_path ? Storage::disk('public')->url($this->cover_path) : null;
     }
 
     public function displayName(): string

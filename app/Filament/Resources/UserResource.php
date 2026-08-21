@@ -34,6 +34,10 @@ class UserResource extends Resource
             Forms\Components\TextInput::make('phone')->disabled(),
             Forms\Components\TextInput::make('email')->email(),
             Forms\Components\Textarea::make('bio')->rows(3),
+            Forms\Components\Textarea::make('story')->label('Producer story')->rows(3),
+            Forms\Components\TextInput::make('production_method'),
+            Forms\Components\Textarea::make('mission')->rows(2),
+            Forms\Components\TextInput::make('founding_year')->numeric(),
             Forms\Components\Select::make('status')
                 ->options(collect(UserStatus::cases())->mapWithKeys(fn ($s) => [$s->value => $s->label()])->all())
                 ->required(),

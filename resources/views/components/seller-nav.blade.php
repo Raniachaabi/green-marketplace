@@ -6,6 +6,7 @@
         'create' => ['route' => route('seller.listings.create'), 'label' => __('seller.nav_new')],
         'orders' => ['route' => route('seller.orders.index'), 'label' => __('seller.nav_orders')],
         'onboarding' => ['route' => route('seller.onboarding'), 'label' => __('seller.nav_documents')],
+        'story' => ['route' => route('seller.story.show'), 'label' => __('seller.nav_story')],
     ];
 @endphp
 
