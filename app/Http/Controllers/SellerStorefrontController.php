@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Review;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
@@ -17,7 +18,7 @@ use Illuminate\View\View;
  */
 class SellerStorefrontController extends Controller
 {
-    public function show(User $user): View
+    public function show(Request $request, User $user): View
     {
         // A user with no listings at all has never been a seller — nothing
         // to show, and no reason to expose an arbitrary buyer's profile page.
@@ -37,6 +38,8 @@ class SellerStorefrontController extends Controller
             'badges' => $user->activeBadges(),
             'ratingAverage' => round((float) Review::where('target_type', 'listing')->whereIn('target_id', $listingIds)->avg('rating'), 1),
             'ratingCount' => Review::where('target_type', 'listing')->whereIn('target_id', $listingIds)->count(),
+            'followerCount' => $user->followerCount(),
+            'isFollowing' => $request->user()?->isFollowing($user->id) ?? false,
         ]);
     }
 }

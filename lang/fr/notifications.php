@@ -15,4 +15,5 @@ return [
     'new_order' => 'Nouvelle commande :number.',
     'order_status_changed' => 'Votre commande :number est maintenant « :status ».',
     'review_received' => 'Nouvel avis reçu : :rating/5.',
+    'followed_seller_new_listing' => ':seller, que vous suivez, vient de publier « :title ».',
 ];

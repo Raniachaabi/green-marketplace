@@ -75,6 +75,10 @@
                    class="hidden rounded-full px-3 py-2 font-medium text-stone-600 hover:bg-leaf-50 hover:text-leaf-700 sm:inline-block dark:text-muted-foreground dark:hover:bg-accent dark:hover:text-foreground">
                     {{ __('wishlist.title') }}
                 </a>
+                <a href="{{ route('following.index') }}"
+                   class="hidden rounded-full px-3 py-2 font-medium text-stone-600 hover:bg-leaf-50 hover:text-leaf-700 sm:inline-block dark:text-muted-foreground dark:hover:bg-accent dark:hover:text-foreground">
+                    {{ __('follow.following_title') }}
+                </a>
                 <a href="{{ route('orders.index') }}"
                    class="hidden rounded-full px-3 py-2 font-medium text-stone-600 hover:bg-leaf-50 hover:text-leaf-700 sm:inline-block dark:text-muted-foreground dark:hover:bg-accent dark:hover:text-foreground">
                     {{ __('common.my_orders') }}
@@ -149,6 +153,7 @@
             @auth
                 <a href="{{ route('seller.listings.index') }}" class="shrink-0 hover:text-leaf-700 dark:hover:text-foreground">{{ __('common.selling') }}</a>
                 <a href="{{ route('wishlist.index') }}" class="shrink-0 hover:text-leaf-700 dark:hover:text-foreground">{{ __('wishlist.title') }}</a>
+                <a href="{{ route('following.index') }}" class="shrink-0 hover:text-leaf-700 dark:hover:text-foreground">{{ __('follow.following_title') }}</a>
                 <a href="{{ route('orders.index') }}" class="shrink-0 hover:text-leaf-700 dark:hover:text-foreground">{{ __('common.my_orders') }}</a>
                 <form method="post" action="{{ route('logout') }}" class="shrink-0">
                     @csrf

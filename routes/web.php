@@ -10,6 +10,7 @@ use App\Http\Controllers\BadgeController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
@@ -51,6 +52,10 @@ Route::get('/catalogue', [CatalogController::class, 'index'])->name('catalog.ind
 Route::get('/listing/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
 Route::get('/badge/{code}', [BadgeController::class, 'show'])->name('badges.show');
 Route::get('/boutique/{user:slug}', [SellerStorefrontController::class, 'show'])->name('seller.storefront');
+Route::middleware('auth')->group(function () {
+    Route::post('/boutique/{user:slug}/suivre', [FollowController::class, 'store'])->name('seller.follow');
+    Route::delete('/boutique/{user:slug}/suivre', [FollowController::class, 'destroy'])->name('seller.unfollow');
+});
 
 // ------------------------------------------------------------------ cart
 Route::get('/panier', [CartController::class, 'show'])->name('cart.show');
@@ -79,6 +84,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/favoris', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/favoris/{listing}', [WishlistController::class, 'store'])->name('wishlist.store');
     Route::delete('/favoris/{listing}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+
+    Route::get('/abonnements', [FollowController::class, 'index'])->name('following.index');
 
     Route::prefix('adresses')->name('addresses.')->group(function () {
         Route::get('/', [AddressController::class, 'index'])->name('index');

@@ -22,6 +22,7 @@
                     </span>
                 @endif
                 <span>{{ __('seller.member_since', ['date' => $seller->created_at->format('Y')]) }}</span>
+                <span>{{ trans_choice('follow.follower_count', $followerCount, ['count' => $followerCount]) }}</span>
             </div>
 
             @if($seller->bio)
@@ -39,6 +40,21 @@
                 </div>
             @endif
         </div>
+
+        @auth
+            @if(auth()->id() !== $seller->id)
+                <form method="post" action="{{ route($isFollowing ? 'seller.unfollow' : 'seller.follow', $seller->slug) }}" class="shrink-0">
+                    @csrf
+                    @if($isFollowing) @method('delete') @endif
+                    <button class="rounded-full px-5 py-2 text-sm font-semibold transition
+                                    {{ $isFollowing
+                                        ? 'border border-stone-300 text-stone-600 hover:bg-stone-50 dark:border-border dark:text-muted-foreground dark:hover:bg-accent'
+                                        : 'bg-gradient-brand text-white shadow-sm hover:opacity-90' }}">
+                        {{ $isFollowing ? __('follow.unfollow') : __('follow.follow') }}
+                    </button>
+                </form>
+            @endif
+        @endauth
     </div>
 
     <h2 class="mb-4 text-lg font-semibold text-leaf-900 dark:text-foreground">{{ __('seller.storefront_listings') }}</h2>

@@ -27,6 +27,9 @@ class User extends Authenticatable implements FilamentUser, HasName
     /** Per-request memoization for wishlistedListingIds() — not a DB column. */
     protected ?Collection $wishlistedIds = null;
 
+    /** Per-request memoization for followedSellerIds() — not a DB column. */
+    protected ?Collection $followedSellerIdsCache = null;
+
     protected function casts(): array
     {
         return [
@@ -123,6 +126,36 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function hasWishlisted(string $listingId): bool
     {
         return $this->wishlistedListingIds()->contains($listingId);
+    }
+
+    // -------------------------------------------------------------- follows
+
+    /** Sellers this user (as a buyer) follows. */
+    public function following(): HasMany
+    {
+        return $this->hasMany(Follow::class, 'follower_user_id');
+    }
+
+    /** Follow rows where this user is the seller being followed. */
+    public function followers(): HasMany
+    {
+        return $this->hasMany(Follow::class, 'seller_user_id');
+    }
+
+    /** Memoized per request, same reasoning as wishlistedListingIds(). */
+    public function followedSellerIds(): Collection
+    {
+        return $this->followedSellerIdsCache ??= $this->following()->pluck('seller_user_id');
+    }
+
+    public function isFollowing(string $sellerUserId): bool
+    {
+        return $this->followedSellerIds()->contains($sellerUserId);
+    }
+
+    public function followerCount(): int
+    {
+        return $this->relationLoaded('followers') ? $this->followers->count() : $this->followers()->count();
     }
 
     public function agreementAcceptances(): HasMany

@@ -4,9 +4,12 @@ namespace App\Observers;
 
 use App\Enums\ListingStatus;
 use App\Models\Listing;
+use App\Models\User;
+use App\Notifications\FollowedSellerNewListing;
 use App\Notifications\ListingApproved;
 use App\Notifications\ListingRejected;
 use App\Notifications\ListingSuspended;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
 class ListingObserver
@@ -63,11 +66,33 @@ class ListingObserver
             return;
         }
 
+        $isFirstPublish = $listing->status === ListingStatus::Active && $listing->getOriginal('published_at') === null;
+
         match ($listing->status) {
             ListingStatus::Active => $listing->sellerUser->notify(new ListingApproved($listing)),
             ListingStatus::Suspended => $listing->sellerUser->notify(new ListingSuspended($listing)),
             ListingStatus::Rejected => $listing->sellerUser->notify(new ListingRejected($listing)),
             default => null,
         };
+
+        if ($isFirstPublish) {
+            $this->notifyFollowers($listing);
+        }
+    }
+
+    /**
+     * Phase 2 §3 — every follower of this seller hears about a genuinely
+     * new listing going live, once, the first time it publishes (not on
+     * every later re-approval after an edit).
+     */
+    private function notifyFollowers(Listing $listing): void
+    {
+        $followerIds = $listing->sellerUser->followers()->pluck('follower_user_id');
+
+        if ($followerIds->isEmpty()) {
+            return;
+        }
+
+        Notification::send(User::whereIn('id', $followerIds)->get(), new FollowedSellerNewListing($listing));
     }
 }

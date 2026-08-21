@@ -15,4 +15,5 @@ return [
     'new_order' => 'New order :number.',
     'order_status_changed' => 'Your order :number is now ":status".',
     'review_received' => 'New review received: :rating/5.',
+    'followed_seller_new_listing' => ':seller, whom you follow, just listed ":title".',
 ];
