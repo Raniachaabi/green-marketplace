@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\ListingStatus;
 use App\Filament\Resources\ListingResource\Pages;
+use App\Models\AuditLog;
 use App\Models\Listing;
 use App\Services\Publishing\PublishingGate;
 use App\Support\Money;
@@ -93,6 +94,8 @@ class ListingResource extends Resource
 
                 Tables\Columns\TextColumn::make('lot_number')->label('Lot')->toggleable()->searchable(),
 
+                Tables\Columns\IconColumn::make('origin_verified_at')->label('Origin verified')->boolean()->toggleable(),
+
                 Tables\Columns\TextColumn::make('published_at')->since()->sortable()->toggleable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -140,6 +143,40 @@ class ListingResource extends Resource
                         ])->save();
 
                         Notification::make()->title('Listing suspended')->warning()->send();
+                    }),
+
+                // §10 — never automatic. An admin actually checks the seller's
+                // registered governorate/address before this flips on, the same
+                // way a credential gets approved rather than self-declared.
+                Tables\Actions\Action::make('verify_origin')
+                    ->label('Verify origin')
+                    ->icon('heroicon-o-check-badge')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn (Listing $r) => ! $r->isOriginVerified() && filled($r->governorate))
+                    ->action(function (Listing $record) {
+                        $record->forceFill([
+                            'origin_verified_at' => now(),
+                            'origin_verified_by_admin_id' => auth()->id(),
+                        ])->save();
+
+                        AuditLog::record('listing.origin_verified', $record, ['governorate' => $record->governorate]);
+
+                        Notification::make()->title('Origin verified')->success()->send();
+                    }),
+
+                Tables\Actions\Action::make('unverify_origin')
+                    ->label('Remove origin verification')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(fn (Listing $r) => $r->isOriginVerified())
+                    ->action(function (Listing $record) {
+                        $record->forceFill(['origin_verified_at' => null, 'origin_verified_by_admin_id' => null])->save();
+
+                        AuditLog::record('listing.origin_unverified', $record);
+
+                        Notification::make()->title('Origin verification removed')->warning()->send();
                     }),
 
                 Tables\Actions\EditAction::make(),

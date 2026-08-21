@@ -211,3 +211,57 @@
         @endforeach
     </div>
 </section>
+
+{{-- Phase 2 §9 — product storytelling. Every field is optional and shown
+     on the product page only if the seller actually filled it in. --}}
+<section class="rounded-2xl border border-stone-200 bg-white p-5 shadow-card dark:border-border dark:bg-card">
+    <h2 class="mb-1 flex items-center gap-2 font-semibold text-leaf-900 dark:text-foreground">
+        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-card-tint text-xs font-bold text-leaf-700 dark:text-primary">{{ $fields->isNotEmpty() ? 5 : 4 }}</span>
+        {{ __('seller.section_story') }}
+    </h2>
+    <p class="mb-4 text-xs text-stone-500 dark:text-muted-foreground">{{ __('seller.section_story_help') }}</p>
+
+    <div class="space-y-4">
+        <label class="block text-sm">
+            <span class="text-stone-500 dark:text-muted-foreground">{{ __('seller.origin_locality') }}</span>
+            <input name="origin_locality" value="{{ old('origin_locality', $listing?->origin_locality) }}"
+                   class="mt-1 w-full rounded-lg border-stone-300 text-sm focus:border-primary focus:ring-primary dark:border-input dark:bg-muted dark:text-foreground dark:focus:ring-ring">
+        </label>
+
+        <label class="block text-sm">
+            <span class="text-stone-500 dark:text-muted-foreground">{{ __('seller.story') }}</span>
+            <textarea name="story[{{ app()->getLocale() }}]" rows="3"
+                      class="mt-1 w-full rounded-lg border-stone-300 text-sm focus:border-primary focus:ring-primary dark:border-input dark:bg-muted dark:text-foreground dark:focus:ring-ring"
+                      >{{ old('story.'.app()->getLocale(), data_get($listing?->story, app()->getLocale())) }}</textarea>
+        </label>
+
+        <label class="block text-sm">
+            <span class="text-stone-500 dark:text-muted-foreground">{{ __('seller.production_process') }}</span>
+            <span class="mt-1 block text-xs text-stone-400 dark:text-muted-foreground/70">{{ __('seller.production_process_help') }}</span>
+            <textarea name="production_process" rows="4"
+                      class="mt-1 w-full rounded-lg border-stone-300 text-sm focus:border-primary focus:ring-primary dark:border-input dark:bg-muted dark:text-foreground dark:focus:ring-ring"
+                      >{{ old('production_process', implode("\n", $listing?->production_process[app()->getLocale()] ?? [])) }}</textarea>
+        </label>
+
+        <label class="block text-sm">
+            <span class="text-stone-500 dark:text-muted-foreground">{{ __('seller.ingredients_materials') }}</span>
+            <textarea name="ingredients_materials[{{ app()->getLocale() }}]" rows="2"
+                      class="mt-1 w-full rounded-lg border-stone-300 text-sm focus:border-primary focus:ring-primary dark:border-input dark:bg-muted dark:text-foreground dark:focus:ring-ring"
+                      >{{ old('ingredients_materials.'.app()->getLocale(), data_get($listing?->ingredients_materials, app()->getLocale())) }}</textarea>
+        </label>
+
+        <label class="block text-sm">
+            <span class="text-stone-500 dark:text-muted-foreground">{{ __('seller.packaging_info') }}</span>
+            <textarea name="packaging_info[{{ app()->getLocale() }}]" rows="2"
+                      class="mt-1 w-full rounded-lg border-stone-300 text-sm focus:border-primary focus:ring-primary dark:border-input dark:bg-muted dark:text-foreground dark:focus:ring-ring"
+                      >{{ old('packaging_info.'.app()->getLocale(), data_get($listing?->packaging_info, app()->getLocale())) }}</textarea>
+        </label>
+
+        <label class="block text-sm">
+            <span class="text-stone-500 dark:text-muted-foreground">{{ __('seller.care_instructions') }}</span>
+            <textarea name="care_instructions[{{ app()->getLocale() }}]" rows="2"
+                      class="mt-1 w-full rounded-lg border-stone-300 text-sm focus:border-primary focus:ring-primary dark:border-input dark:bg-muted dark:text-foreground dark:focus:ring-ring"
+                      >{{ old('care_instructions.'.app()->getLocale(), data_get($listing?->care_instructions, app()->getLocale())) }}</textarea>
+        </label>
+    </div>
+</section>

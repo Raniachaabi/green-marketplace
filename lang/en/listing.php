@@ -3,6 +3,13 @@
 return [
     'sold_by' => 'Sold by',
     'specifications' => 'Specifications',
+    'made_in_tunisia' => 'Made in Tunisia',
+    'origin_verified' => 'Origin verified by the marketplace',
+    'about_this_product' => 'About this product',
+    'how_its_made' => "How it's made",
+    'ingredients_materials' => 'Ingredients / materials',
+    'packaging_info' => 'Packaging',
+    'care_instructions' => 'Usage & care',
     'quantity' => 'Quantity',
     'add_to_cart' => 'Add to cart',
     'unavailable' => 'Unavailable',

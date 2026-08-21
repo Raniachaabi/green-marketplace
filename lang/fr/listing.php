@@ -3,6 +3,13 @@
 return [
     'sold_by' => 'Vendu par',
     'specifications' => 'Caractéristiques',
+    'made_in_tunisia' => 'Fabriqué en Tunisie',
+    'origin_verified' => "Origine vérifiée par la marketplace",
+    'about_this_product' => 'À propos de ce produit',
+    'how_its_made' => 'Comment il est fabriqué',
+    'ingredients_materials' => 'Ingrédients / matériaux',
+    'packaging_info' => 'Emballage',
+    'care_instructions' => 'Utilisation et entretien',
     'quantity' => 'Quantité',
     'add_to_cart' => 'Ajouter au panier',
     'unavailable' => 'Indisponible',

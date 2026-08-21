@@ -143,6 +143,8 @@
                         @endforeach
                     </div>
                 @endif
+
+                <x-origin-badge :listing="$listing" class="mt-3" />
             </div>
 
             <x-green-score :result="$greenScore" />
@@ -192,6 +194,54 @@
                             @endif
                         @endforeach
                     </dl>
+                </div>
+            @endif
+
+            {{-- Phase 2 §9 — product storytelling. Each block only renders
+                 if the seller actually filled it in; nothing here is ever
+                 inferred. --}}
+            @if($listing->translate('story'))
+                <div class="rounded-2xl border border-stone-200 bg-white p-4 shadow-card dark:border-border dark:bg-card">
+                    <h2 class="mb-2 font-semibold text-leaf-900 dark:text-foreground">{{ __('listing.about_this_product') }}</h2>
+                    <p class="whitespace-pre-line text-sm leading-relaxed text-stone-700 dark:text-muted-foreground">{{ $listing->translate('story') }}</p>
+                </div>
+            @endif
+
+            @if(! empty($listing->productionProcessSteps()))
+                <div class="rounded-2xl border border-stone-200 bg-white p-4 shadow-card dark:border-border dark:bg-card">
+                    <h2 class="mb-3 font-semibold text-leaf-900 dark:text-foreground">{{ __('listing.how_its_made') }}</h2>
+                    <ol class="space-y-2 text-sm text-stone-700 dark:text-muted-foreground">
+                        @foreach($listing->productionProcessSteps() as $i => $step)
+                            <li class="flex items-center gap-2">
+                                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-xs font-bold text-leaf-700 dark:bg-primary/15 dark:text-primary">{{ $i + 1 }}</span>
+                                {{ $step }}
+                            </li>
+                            @if(! $loop->last)
+                                <li class="ms-3 h-3 border-s-2 border-dashed border-stone-200 dark:border-border"></li>
+                            @endif
+                        @endforeach
+                    </ol>
+                </div>
+            @endif
+
+            @if($listing->translate('ingredients_materials'))
+                <div class="rounded-2xl border border-stone-200 bg-white p-4 shadow-card dark:border-border dark:bg-card">
+                    <h2 class="mb-2 font-semibold text-leaf-900 dark:text-foreground">{{ __('listing.ingredients_materials') }}</h2>
+                    <p class="whitespace-pre-line text-sm text-stone-700 dark:text-muted-foreground">{{ $listing->translate('ingredients_materials') }}</p>
+                </div>
+            @endif
+
+            @if($listing->translate('packaging_info'))
+                <div class="rounded-2xl border border-stone-200 bg-white p-4 shadow-card dark:border-border dark:bg-card">
+                    <h2 class="mb-2 font-semibold text-leaf-900 dark:text-foreground">{{ __('listing.packaging_info') }}</h2>
+                    <p class="whitespace-pre-line text-sm text-stone-700 dark:text-muted-foreground">{{ $listing->translate('packaging_info') }}</p>
+                </div>
+            @endif
+
+            @if($listing->translate('care_instructions'))
+                <div class="rounded-2xl border border-stone-200 bg-white p-4 shadow-card dark:border-border dark:bg-card">
+                    <h2 class="mb-2 font-semibold text-leaf-900 dark:text-foreground">{{ __('listing.care_instructions') }}</h2>
+                    <p class="whitespace-pre-line text-sm text-stone-700 dark:text-muted-foreground">{{ $listing->translate('care_instructions') }}</p>
                 </div>
             @endif
 

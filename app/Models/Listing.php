@@ -19,7 +19,9 @@ class Listing extends Model
 {
     use HasFactory, HasTranslations, HasUuids, SoftDeletes;
 
-    protected array $translatable = ['title', 'description'];
+    protected array $translatable = [
+        'title', 'description', 'story', 'ingredients_materials', 'packaging_info', 'care_instructions',
+    ];
 
     protected $fillable = [
         'seller_user_id', 'seller_org_id', 'category_id', 'slug', 'title',
@@ -27,6 +29,9 @@ class Listing extends Model
         'availability_model', 'lead_time_days', 'season_start', 'season_end',
         'lot_number', 'attribute_values', 'governorate', 'status', 'status_reason',
         'published_at', 'suspended_at',
+        // Origin (§10) and storytelling (§9) — all optional.
+        'origin_locality', 'story', 'production_process',
+        'ingredients_materials', 'packaging_info', 'care_instructions',
     ];
 
     protected function casts(): array
@@ -38,6 +43,7 @@ class Listing extends Model
             // internal $attributes property and breaks reads from inside the
             // model. Costs one rename, saves a very confusing afternoon.
             'attribute_values' => 'array',
+            'production_process' => 'array',
             'price' => 'integer',
             'stock' => 'integer',
             'min_order_qty' => 'integer',
@@ -46,6 +52,7 @@ class Listing extends Model
             'season_end' => 'date',
             'published_at' => 'datetime',
             'suspended_at' => 'datetime',
+            'origin_verified_at' => 'datetime',
             'status' => ListingStatus::class,
             'availability_model' => AvailabilityModel::class,
         ];
@@ -208,6 +215,42 @@ class Listing extends Model
         }
 
         return true;
+    }
+
+    // ------------------------------------------------------------ origin
+
+    public function originVerifiedByAdmin(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'origin_verified_by_admin_id');
+    }
+
+    /** §10 — never automatic. True only once an admin has actually checked it. */
+    public function isOriginVerified(): bool
+    {
+        return $this->origin_verified_at !== null;
+    }
+
+    /**
+     * Production-process steps, in order, for one locale — empty if the
+     * seller never filled this in. Stored as {"ar": [...], "fr": [...], ...},
+     * one locale edited at a time (same convention as `description`).
+     */
+    public function productionProcessSteps(?string $locale = null): array
+    {
+        $locale ??= app()->getLocale();
+        $steps = $this->production_process ?? [];
+
+        if (! empty($steps[$locale])) {
+            return array_values(array_filter($steps[$locale]));
+        }
+
+        foreach ([config('app.fallback_locale'), 'fr', 'ar', 'en'] as $fallback) {
+            if (! empty($steps[$fallback])) {
+                return array_values(array_filter($steps[$fallback]));
+            }
+        }
+
+        return [];
     }
 
     public function isInSeason(): bool

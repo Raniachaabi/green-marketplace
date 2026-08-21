@@ -100,7 +100,7 @@ class SellerListingController extends Controller
 
         $data = $this->validateListing($request, $category);
 
-        $listing = new Listing(array_merge($this->attributesFromValidated($data), [
+        $listing = new Listing(array_merge($this->attributesFromValidated($data, null), [
             'seller_user_id' => $request->user()->id,
             'category_id' => $category->id,
             'status' => ListingStatus::Draft,
@@ -127,7 +127,7 @@ class SellerListingController extends Controller
         $data = $this->validateListing($request, $category);
         $wasActive = $listing->status === ListingStatus::Active;
 
-        $listing->fill($this->attributesFromValidated($data));
+        $listing->fill($this->attributesFromValidated($data, $listing));
         $listing->save();
 
         $listing->greenAttributes()->sync($data['green'] ?? []);
@@ -287,6 +287,18 @@ class SellerListingController extends Controller
             'lot_number' => ['nullable', 'string', 'max:64'],
             'green' => ['nullable', 'array'],
             'attributes' => ['nullable', 'array'],
+
+            // Phase 2 §9/§10 — all optional storytelling and origin fields.
+            'origin_locality' => ['nullable', 'string', 'max:190'],
+            'story' => ['nullable', 'array'],
+            'story.*' => ['nullable', 'string', 'max:2000'],
+            'production_process' => ['nullable', 'string', 'max:2000'],
+            'ingredients_materials' => ['nullable', 'array'],
+            'ingredients_materials.*' => ['nullable', 'string', 'max:2000'],
+            'packaging_info' => ['nullable', 'array'],
+            'packaging_info.*' => ['nullable', 'string', 'max:1000'],
+            'care_instructions' => ['nullable', 'array'],
+            'care_instructions.*' => ['nullable', 'string', 'max:1000'],
         ];
 
         // FR-012 — the category's own fields become validation rules.
@@ -321,8 +333,10 @@ class SellerListingController extends Controller
     }
 
     /** The validated form payload, shaped into Listing attributes. */
-    private function attributesFromValidated(array $data): array
+    private function attributesFromValidated(array $data, ?Listing $existing): array
     {
+        $locale = app()->getLocale();
+
         return [
             'title' => $data['title'],
             'description' => $data['description'] ?? [],
@@ -336,6 +350,46 @@ class SellerListingController extends Controller
             'season_end' => $data['season_end'] ?? null,
             'lot_number' => $data['lot_number'] ?? null,
             'attribute_values' => $data['attributes'] ?? [],
+
+            // Phase 2 §9/§10 — each JSON column holds every locale; only the
+            // active locale's slice is edited per save, same as description.
+            'origin_locality' => $data['origin_locality'] ?? null,
+            'story' => $this->mergeLocale($existing?->story, $locale, $data['story'][$locale] ?? null),
+            'production_process' => $this->mergeLocaleList(
+                $existing?->production_process, $locale,
+                $data['production_process'] ?? null
+            ),
+            'ingredients_materials' => $this->mergeLocale(
+                $existing?->ingredients_materials, $locale, $data['ingredients_materials'][$locale] ?? null
+            ),
+            'packaging_info' => $this->mergeLocale(
+                $existing?->packaging_info, $locale, $data['packaging_info'][$locale] ?? null
+            ),
+            'care_instructions' => $this->mergeLocale(
+                $existing?->care_instructions, $locale, $data['care_instructions'][$locale] ?? null
+            ),
         ];
+    }
+
+    /** @param  array<string, string>|null  $current */
+    private function mergeLocale(?array $current, string $locale, ?string $value): array
+    {
+        $current ??= [];
+        $current[$locale] = $value;
+
+        return $current;
+    }
+
+    /** @param  array<string, array<int, string>>|null  $current */
+    private function mergeLocaleList(?array $current, string $locale, ?string $newlineSeparated): array
+    {
+        $current ??= [];
+        $current[$locale] = collect(explode("\n", $newlineSeparated ?? ''))
+            ->map(fn ($line) => trim($line))
+            ->filter()
+            ->values()
+            ->all();
+
+        return $current;
     }
 }

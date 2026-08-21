@@ -3,6 +3,13 @@
 return [
     'sold_by' => 'يباع من طرف',
     'specifications' => 'الخصائص',
+    'made_in_tunisia' => 'صنع في تونس',
+    'origin_verified' => 'تم التحقق من المنشأ من قبل السوق',
+    'about_this_product' => 'عن هذا المنتج',
+    'how_its_made' => 'كيف يُصنع',
+    'ingredients_materials' => 'المكونات / المواد',
+    'packaging_info' => 'التغليف',
+    'care_instructions' => 'الاستخدام والعناية',
     'quantity' => 'الكمية',
     'add_to_cart' => 'أضف إلى السلة',
     'unavailable' => 'غير متوفر',
