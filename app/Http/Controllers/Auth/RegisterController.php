@@ -29,6 +29,12 @@ class RegisterController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // An empty email input arrives as "", not absent — without this,
+        // `nullable` never kicks in and a blank field fails the `email` rule.
+        if ($request->input('email') === '') {
+            $request->merge(['email' => null]);
+        }
+
         $data = $request->validate([
             'full_name' => ['required', 'string', 'max:190'],
             'phone' => ['required', 'string', 'max:32', 'unique:users,phone'],

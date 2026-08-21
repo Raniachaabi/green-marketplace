@@ -4,6 +4,7 @@ return [
     'title' => 'Connexion',
     'subtitle' => 'Accédez à vos commandes et, si vous vendez, à vos annonces.',
     'email' => 'E-mail',
+    'login_identifier' => 'E-mail ou téléphone',
     'password' => 'Mot de passe',
     'remember_me' => 'Rester connecté',
     'submit' => 'Se connecter',

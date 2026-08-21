@@ -29,10 +29,16 @@ class LoginController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        $data = $request->validate([
+            // Registration leaves email optional (phone is the primary
+            // identifier — FR-001), so login must accept either: this field
+            // takes whichever one the visitor has, and we detect the shape.
+            'email' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
+
+        $field = filter_var($data['email'], FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+        $credentials = [$field => $data['email'], 'password' => $data['password']];
 
         $key = $this->throttleKey($request);
 

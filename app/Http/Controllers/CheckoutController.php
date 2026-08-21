@@ -11,6 +11,7 @@ use App\Services\DeliveryQuoter;
 use App\Services\OrderPlacer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use RuntimeException;
 
@@ -80,6 +81,11 @@ class CheckoutController extends Controller
         try {
             $order = $this->placer->place($request->user(), $address, $method, $validated['note'] ?? null, $proofPath);
         } catch (RuntimeException $e) {
+            // The order never got created — don't leave the uploaded proof behind.
+            if ($proofPath) {
+                Storage::disk('payment_proofs')->delete($proofPath);
+            }
+
             return back()->withErrors(['cart' => $e->getMessage()]);
         }
 

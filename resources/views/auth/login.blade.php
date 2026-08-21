@@ -19,8 +19,8 @@
                 @csrf
 
                 <label class="block text-sm">
-                    <span class="text-stone-500 dark:text-muted-foreground">{{ __('auth.email') }}</span>
-                    <input type="email" name="email" value="{{ old('email') }}" required autofocus
+                    <span class="text-stone-500 dark:text-muted-foreground">{{ __('auth.login_identifier') }}</span>
+                    <input type="text" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
                            class="mt-1 w-full rounded-lg border-stone-300 text-sm focus:border-primary focus:ring-primary dark:border-input dark:bg-muted dark:text-foreground dark:focus:ring-ring">
                 </label>
 

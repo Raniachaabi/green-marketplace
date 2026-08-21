@@ -4,6 +4,7 @@ return [
     'title' => 'Sign in',
     'subtitle' => 'Access your orders and, if you sell, your listings.',
     'email' => 'Email',
+    'login_identifier' => 'Email or phone',
     'password' => 'Password',
     'remember_me' => 'Keep me signed in',
     'submit' => 'Sign in',
