@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\OrderStatus;
 use App\Models\OrderLine;
 use App\Models\Review;
+use App\Notifications\ReviewReceived;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -33,7 +34,7 @@ class ReviewController extends Controller
             'body' => ['nullable', 'string', 'max:2000'],
         ]);
 
-        Review::create([
+        $review = Review::create([
             'author_user_id' => $request->user()->id,
             'order_line_id' => $orderLine->id,
             'target_type' => 'listing',
@@ -41,6 +42,8 @@ class ReviewController extends Controller
             'rating' => $data['rating'],
             'body' => $data['body'] ?? null,
         ]);
+
+        $orderLine->listing?->sellerUser?->notify(new ReviewReceived($review->fresh('orderLine.listing')));
 
         return back()->with('status', __('order.review_submitted'));
     }

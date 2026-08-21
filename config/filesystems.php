@@ -27,6 +27,15 @@ return [
             'visibility' => 'private',
             'throw' => false,
         ],
+
+        // Bank-transfer proof of payment — same reasoning as credentials:
+        // a buyer's bank receipt is never publicly readable.
+        'payment_proofs' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/payment-proofs'),
+            'visibility' => 'private',
+            'throw' => false,
+        ],
     ],
 
     'links' => [

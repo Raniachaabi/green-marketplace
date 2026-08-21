@@ -14,6 +14,7 @@ use App\Models\OrderLine;
 use App\Models\Payment;
 use App\Models\Shipment;
 use App\Models\User;
+use App\Notifications\NewOrderReceived;
 use App\Support\Money;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -45,6 +46,7 @@ class OrderPlacer
         Address $address,
         PaymentMethod $method = PaymentMethod::Cod,
         ?string $note = null,
+        ?string $proofPath = null,
     ): Order {
         $lines = $this->cart->lines()->where('available', true);
 
@@ -52,7 +54,7 @@ class OrderPlacer
             throw new RuntimeException(__('checkout.empty_cart'));
         }
 
-        return DB::transaction(function () use ($buyer, $address, $method, $note, $lines) {
+        return DB::transaction(function () use ($buyer, $address, $method, $note, $proofPath, $lines) {
             $subtotal = (int) $lines->sum('line_total');
 
             $categories = $lines->map(fn ($l) => $l['listing']->category)->filter()->unique('id');
@@ -85,7 +87,7 @@ class OrderPlacer
             }
 
             $this->createShipments($order, $lines, $delivery);
-            $this->createPayment($order, $method);
+            $this->createPayment($order, $method, $proofPath);
             $this->issueInvoice($order);
 
             AuditLog::record('order.placed', $order, [
@@ -162,15 +164,18 @@ class OrderPlacer
                 'method' => $delivery ? 'delivery' : 'pickup',
                 'status' => 'pending',
             ]);
+
+            $first->sellerUser?->notify(new NewOrderReceived($order));
         }
     }
 
-    private function createPayment(Order $order, PaymentMethod $method): Payment
+    private function createPayment(Order $order, PaymentMethod $method, ?string $proofPath = null): Payment
     {
         return Payment::create([
             'order_id' => $order->id,
             'method' => $method,
             'amount' => $order->total,
+            'proof_path' => $proofPath,
             'status' => match ($method) {
                 PaymentMethod::Cod => 'pending_cod',
                 PaymentMethod::Transfer => 'awaiting_confirmation',

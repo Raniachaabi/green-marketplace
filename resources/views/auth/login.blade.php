@@ -30,15 +30,27 @@
                            class="mt-1 w-full rounded-lg border-stone-300 text-sm focus:border-primary focus:ring-primary dark:border-input dark:bg-muted dark:text-foreground dark:focus:ring-ring">
                 </label>
 
-                <label class="flex items-center gap-2 text-sm text-stone-600 dark:text-muted-foreground">
-                    <input type="checkbox" name="remember" class="rounded border-stone-300 text-primary focus:ring-primary dark:border-input dark:bg-muted">
-                    {{ __('auth.remember_me') }}
-                </label>
+                <div class="flex items-center justify-between text-sm">
+                    <label class="flex items-center gap-2 text-stone-600 dark:text-muted-foreground">
+                        <input type="checkbox" name="remember" class="rounded border-stone-300 text-primary focus:ring-primary dark:border-input dark:bg-muted">
+                        {{ __('auth.remember_me') }}
+                    </label>
+                    <a href="{{ route('password.request') }}" class="text-leaf-700 hover:underline dark:text-primary">
+                        {{ __('auth.forgot_password') }}
+                    </a>
+                </div>
 
                 <button class="w-full rounded-full bg-gradient-brand px-6 py-2.5 font-semibold text-white shadow-card hover:opacity-90">
                     {{ __('auth.submit') }}
                 </button>
             </form>
+
+            <p class="mt-5 text-center text-sm text-stone-500 dark:text-muted-foreground">
+                {{ __('auth.no_account') }}
+                <a href="{{ route('register.show') }}" class="font-semibold text-leaf-700 hover:underline dark:text-primary">
+                    {{ __('auth.create_account') }}
+                </a>
+            </p>
         </div>
 
         <a href="{{ route('home') }}" class="mt-4 text-center text-sm text-leaf-700 underline dark:text-primary">

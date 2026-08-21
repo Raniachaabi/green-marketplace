@@ -1,5 +1,6 @@
 @extends('layouts.app')
-@section('title', $listing->name())
+@section('title', $listing->name().' — '.config('app.name'))
+@section('meta_description', \Illuminate\Support\Str::limit(strip_tags($listing->translate('description') ?? $listing->formattedPrice().' · '.$listing->sellerLabel()), 160))
 
 @section('content')
     <nav class="mb-6 flex items-center gap-1.5 text-xs text-stone-400 dark:text-muted-foreground">
@@ -47,16 +48,35 @@
                 <div class="flex items-start justify-between gap-3">
                     <p class="text-xs font-semibold uppercase tracking-wide text-leaf-600 dark:text-primary">{{ $listing->category->name() }}</p>
 
-                    <div x-data="{ copied: false }" class="relative shrink-0">
-                        <button type="button"
-                                x-on:click="navigator.clipboard.writeText(window.location.href); copied = true; setTimeout(() => copied = false, 1500)"
-                                class="flex items-center gap-1.5 rounded-full border border-stone-200 px-2.5 py-1 text-xs font-medium text-stone-500 hover:border-leaf-300 hover:text-leaf-700 dark:border-border dark:text-muted-foreground dark:hover:border-primary/50 dark:hover:text-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5">
-                                <path d="M8.5 12.5a3 3 0 0 0 4.2.3l3-2.5a3 3 0 0 0-3.8-4.6l-1.7 1.4M15.5 11.5a3 3 0 0 0-4.2-.3l-3 2.5a3 3 0 0 0 3.8 4.6l1.6-1.4"
-                                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span x-text="copied ? '{{ __('listing.link_copied') }}' : '{{ __('listing.share') }}'"></span>
-                        </button>
+                    <div class="flex shrink-0 items-center gap-2">
+                        @auth
+                            @php($wishlisted = auth()->user()->hasWishlisted($listing->id))
+                            <form method="post" action="{{ route($wishlisted ? 'wishlist.destroy' : 'wishlist.store', $listing) }}">
+                                @csrf
+                                @if($wishlisted) @method('delete') @endif
+                                <button type="submit"
+                                        class="flex items-center gap-1.5 rounded-full border border-stone-200 px-2.5 py-1 text-xs font-medium text-stone-500 hover:border-red-300 hover:text-red-600 dark:border-border dark:text-muted-foreground dark:hover:border-destructive/50 dark:hover:text-destructive">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="{{ $wishlisted ? 'currentColor' : 'none' }}"
+                                         class="h-3.5 w-3.5 {{ $wishlisted ? 'text-red-500 dark:text-destructive' : '' }}">
+                                        <path d="M12 20.5s-7.5-4.6-9.7-9.2C.6 7.6 2.4 4.5 5.6 4c2-.3 3.9.7 5 2.3l1.4 2 1.4-2c1.1-1.6 3-2.6 5-2.3 3.2.5 5 3.6 3.3 7.3-2.2 4.6-9.7 9.2-9.7 9.2Z"
+                                              stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                                    </svg>
+                                    {{ $wishlisted ? __('wishlist.remove') : __('wishlist.add') }}
+                                </button>
+                            </form>
+                        @endauth
+
+                        <div x-data="{ copied: false }" class="relative">
+                            <button type="button"
+                                    x-on:click="navigator.clipboard.writeText(window.location.href); copied = true; setTimeout(() => copied = false, 1500)"
+                                    class="flex items-center gap-1.5 rounded-full border border-stone-200 px-2.5 py-1 text-xs font-medium text-stone-500 hover:border-leaf-300 hover:text-leaf-700 dark:border-border dark:text-muted-foreground dark:hover:border-primary/50 dark:hover:text-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="h-3.5 w-3.5">
+                                    <path d="M8.5 12.5a3 3 0 0 0 4.2.3l3-2.5a3 3 0 0 0-3.8-4.6l-1.7 1.4M15.5 11.5a3 3 0 0 0-4.2-.3l-3 2.5a3 3 0 0 0 3.8 4.6l1.6-1.4"
+                                          stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span x-text="copied ? '{{ __('listing.link_copied') }}' : '{{ __('listing.share') }}'"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -101,7 +121,14 @@
                     </span>
                     <span>
                         <span class="block text-xs text-stone-500 dark:text-muted-foreground">{{ __('listing.sold_by') }}</span>
-                        <span class="font-semibold text-leaf-900 dark:text-foreground">{{ $listing->sellerLabel() }}</span>
+                        @if($listing->sellerUser)
+                            <a href="{{ route('seller.storefront', $listing->sellerUser->slug) }}"
+                               class="font-semibold text-leaf-900 hover:text-leaf-700 hover:underline dark:text-foreground dark:hover:text-primary">
+                                {{ $listing->sellerLabel() }}
+                            </a>
+                        @else
+                            <span class="font-semibold text-leaf-900 dark:text-foreground">{{ $listing->sellerLabel() }}</span>
+                        @endif
                     </span>
                 </p>
 

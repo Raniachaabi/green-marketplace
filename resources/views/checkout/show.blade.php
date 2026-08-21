@@ -4,7 +4,7 @@
 @section('content')
     <h1 class="mb-6 text-2xl font-semibold text-leaf-900 dark:text-foreground">{{ __('checkout.title') }}</h1>
 
-    <form method="post" action="{{ route('checkout.store') }}" class="grid gap-8 lg:grid-cols-[1fr_360px]">
+    <form method="post" action="{{ route('checkout.store') }}" enctype="multipart/form-data" class="grid gap-8 lg:grid-cols-[1fr_360px]">
         @csrf
 
         <div class="space-y-6">
@@ -41,16 +41,26 @@
                 @endforelse
             </section>
 
-            <section class="rounded-2xl border border-stone-200 bg-white p-4 shadow-card dark:border-border dark:bg-card">
+            <section class="rounded-2xl border border-stone-200 bg-white p-4 shadow-card dark:border-border dark:bg-card"
+                     x-data="{ method: '{{ old('payment_method', $methods->first()?->value) }}' }">
                 <h2 class="mb-3 font-semibold text-leaf-900 dark:text-foreground">{{ __('checkout.payment') }}</h2>
-                @foreach($methods as $method)
+                @foreach($methods as $paymentMethod)
                     <label class="flex items-center gap-3 py-1.5 text-sm text-leaf-900 dark:text-foreground">
-                        <input type="radio" name="payment_method" value="{{ $method->value }}"
+                        <input type="radio" name="payment_method" value="{{ $paymentMethod->value }}" x-model="method"
                                @checked($loop->first) required
                                class="border-stone-300 text-primary focus:ring-primary dark:border-input dark:bg-muted">
-                        {{ $method->label() }}
+                        {{ $paymentMethod->label() }}
                     </label>
                 @endforeach
+
+                <div x-show="method === 'transfer'" x-cloak class="mt-3 space-y-2 rounded-xl border border-dashed border-stone-300 p-3 dark:border-border">
+                    <p class="text-xs text-stone-500 dark:text-muted-foreground">{{ __('checkout.transfer_instructions') }}</p>
+                    <label class="block text-sm">
+                        <span class="text-stone-500 dark:text-muted-foreground">{{ __('checkout.proof_of_payment') }}</span>
+                        <input type="file" name="proof" accept=".pdf,.jpg,.jpeg,.png"
+                               class="mt-1 w-full text-sm dark:text-foreground">
+                    </label>
+                </div>
             </section>
 
             <section class="rounded-2xl border border-stone-200 bg-white p-4 shadow-card dark:border-border dark:bg-card">

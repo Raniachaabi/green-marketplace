@@ -48,6 +48,10 @@ return [
     'nav_listings' => 'لوحة التحكم',
     'nav_new' => 'إعلان جديد',
     'nav_documents' => 'الوثائق',
+    'nav_orders' => 'الطلبات',
+    'no_orders' => 'لا توجد طلبات بعد.',
+    'fulfillment_status' => 'حالة التجهيز',
+    'shipment_updated' => 'تم تحديث حالة الشحنة.',
 
     'new_listing_intro' => 'اختر صنفا، املأ التفاصيل، ثم أضف صورا قبل النشر.',
     'ready_to_list' => 'جاهز للإدراج',
@@ -93,4 +97,10 @@ return [
     'photo_removed' => 'تمت إزالة الصورة.',
     'photo_cover_updated' => 'تم تحديث الصورة الرئيسية.',
     'save_changes' => 'حفظ التعديلات',
+
+    'view_storefront' => 'عرض المتجر',
+    'storefront_listings' => 'الإعلانات',
+    'storefront_no_listings' => 'لا يوجد شيء منشور حاليا — تفقد لاحقا.',
+    'storefront_reviews' => 'تقييمات',
+    'member_since' => 'يبيع منذ :date',
 ];

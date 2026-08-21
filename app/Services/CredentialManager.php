@@ -8,6 +8,8 @@ use App\Models\AuditLog;
 use App\Models\Credential;
 use App\Models\Listing;
 use App\Models\User;
+use App\Notifications\CredentialApproved;
+use App\Notifications\CredentialRejected;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -36,6 +38,10 @@ class CredentialManager
             'expires_at' => $credential->expires_at?->toDateString(),
         ], $admin);
 
+        if ($credential->holder() instanceof User) {
+            $credential->holder()->notify(new CredentialApproved($credential));
+        }
+
         return $credential;
     }
 
@@ -49,6 +55,10 @@ class CredentialManager
         ])->save();
 
         AuditLog::record('credential.rejected', $credential, ['reason' => $reason], $admin);
+
+        if ($credential->holder() instanceof User) {
+            $credential->holder()->notify(new CredentialRejected($credential, $reason));
+        }
 
         $this->suspendListingsDependingOn($credential, 'credential_rejected');
 

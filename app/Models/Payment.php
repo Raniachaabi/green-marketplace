@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,6 +21,7 @@ class Payment extends Model
     {
         return [
             'method' => PaymentMethod::class,
+            'status' => PaymentStatus::class,
             'amount' => 'integer',
             'paid_at' => 'datetime',
         ];
@@ -32,6 +34,6 @@ class Payment extends Model
 
     public function isSettled(): bool
     {
-        return $this->status === 'paid';
+        return $this->status === PaymentStatus::Paid;
     }
 }

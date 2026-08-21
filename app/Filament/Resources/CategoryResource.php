@@ -40,6 +40,10 @@ class CategoryResource extends Resource
                 Forms\Components\KeyValue::make('name')
                     ->label('Name by locale (ar / fr / en)')
                     ->columnSpanFull(),
+                Forms\Components\KeyValue::make('description')
+                    ->label('Description by locale (ar / fr / en)')
+                    ->helperText('Shown on the category page — optional.')
+                    ->columnSpanFull(),
                 Forms\Components\Select::make('listing_type')
                     ->options(collect(ListingType::cases())
                         ->mapWithKeys(fn ($t) => [$t->value => ucfirst($t->value)])->all())
@@ -47,6 +51,8 @@ class CategoryResource extends Resource
                 Forms\Components\TextInput::make('path')
                     ->required()
                     ->helperText('Materialised path, e.g. intrants/semences/cereales'),
+                Forms\Components\TextInput::make('icon')
+                    ->helperText('Heroicon name, e.g. heroicon-o-sparkles — shown next to the category in menus.'),
                 Forms\Components\Toggle::make('is_leaf')->default(true),
                 Forms\Components\Toggle::make('is_active')->default(true),
                 Forms\Components\TextInput::make('display_order')->numeric()->default(0),

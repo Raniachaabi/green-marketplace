@@ -9,6 +9,7 @@ return [
     'sign_in' => 'Sign in',
     'sign_out' => 'Sign out',
     'back' => 'Back',
+    'save' => 'Save',
     'yes' => 'Yes',
     'no' => 'No',
     'unknown_seller' => 'Unknown seller',

@@ -48,6 +48,10 @@ return [
     'nav_listings' => 'Tableau de bord',
     'nav_new' => 'Nouvelle annonce',
     'nav_documents' => 'Justificatifs',
+    'nav_orders' => 'Commandes',
+    'no_orders' => 'Aucune commande pour l\'instant.',
+    'fulfillment_status' => 'Statut de traitement',
+    'shipment_updated' => 'Statut de la livraison mis à jour.',
 
     'new_listing_intro' => 'Choisissez une catégorie, remplissez les détails, puis ajoutez des photos avant de publier.',
     'ready_to_list' => 'Prêt à publier',
@@ -93,4 +97,10 @@ return [
     'photo_removed' => 'Photo retirée.',
     'photo_cover_updated' => 'Photo de couverture mise à jour.',
     'save_changes' => 'Enregistrer les modifications',
+
+    'view_storefront' => 'Voir la boutique',
+    'storefront_listings' => 'Annonces',
+    'storefront_no_listings' => 'Rien en ligne pour l\'instant — revenez bientôt.',
+    'storefront_reviews' => 'avis',
+    'member_since' => 'Vendeur depuis :date',
 ];

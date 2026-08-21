@@ -4,6 +4,7 @@
     $tabs = [
         'listings' => ['route' => route('seller.listings.index'), 'label' => __('seller.nav_listings')],
         'create' => ['route' => route('seller.listings.create'), 'label' => __('seller.nav_new')],
+        'orders' => ['route' => route('seller.orders.index'), 'label' => __('seller.nav_orders')],
         'onboarding' => ['route' => route('seller.onboarding'), 'label' => __('seller.nav_documents')],
     ];
 @endphp

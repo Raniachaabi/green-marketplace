@@ -26,4 +26,10 @@ return [
     'address_deleted' => 'Address deleted.',
     'address_default_set' => 'Default address updated.',
     'manage_addresses' => 'Manage addresses',
+
+    'status' => [
+        'active' => 'Active',
+        'suspended' => 'Suspended',
+    ],
+    'account_suspended' => 'This account has been suspended. Contact support if you believe this is a mistake.',
 ];

@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 /**
  * FR-022 / FR-027 — the verification queue.
@@ -60,6 +61,21 @@ class CredentialResource extends Resource
                 Forms\Components\DatePicker::make('issued_at')->disabled(),
                 Forms\Components\DatePicker::make('expires_at')
                     ->helperText('Listings depending on this credential auto-suspend the day after it lapses.'),
+
+                // The whole point of this queue: see the actual document
+                // before deciding. It lives on a private disk and is
+                // streamed only to an authenticated admin — never a public
+                // or cached URL.
+                Forms\Components\Placeholder::make('document_path')
+                    ->label('Document')
+                    ->content(fn (?Credential $record) => $record?->document_path
+                        ? new HtmlString(sprintf(
+                            '<a href="%s" target="_blank" rel="noopener" class="fi-link text-sm font-medium text-primary-600 underline">%s</a>',
+                            route('admin.credentials.document', $record),
+                            'Open document ↗'
+                        ))
+                        : 'No document on file.')
+                    ->columnSpanFull(),
             ])->columns(2),
 
             Forms\Components\Section::make('Decision')->schema([

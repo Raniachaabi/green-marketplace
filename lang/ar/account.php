@@ -26,4 +26,10 @@ return [
     'address_deleted' => 'تم حذف العنوان.',
     'address_default_set' => 'تم تحديث العنوان الافتراضي.',
     'manage_addresses' => 'إدارة العناوين',
+
+    'status' => [
+        'active' => 'نشط',
+        'suspended' => 'موقوف',
+    ],
+    'account_suspended' => 'تم إيقاف هذا الحساب. تواصل مع الدعم إذا كنت تعتقد أن هذا خطأ.',
 ];

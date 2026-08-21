@@ -9,6 +9,8 @@ return [
     'summary' => 'Récapitulatif',
     'delivery' => 'Livraison',
     'delivery_days' => '{0} Le jour même|{1} Livré en 1 jour|[2,*] Livré en :count jours',
+    'transfer_instructions' => 'Virez le montant total sur notre compte, puis téléversez votre reçu ci-dessous. Votre commande est expédiée dès qu\'un administrateur confirme le paiement.',
+    'proof_of_payment' => 'Preuve de paiement (reçu ou capture d\'écran)',
     'place_order' => 'Confirmer la commande',
     'accept_terms' => 'J\'accepte les conditions générales',
     'placed' => 'Commande enregistrée.',

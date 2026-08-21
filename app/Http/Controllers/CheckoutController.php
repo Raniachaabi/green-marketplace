@@ -49,10 +49,18 @@ class CheckoutController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $method = PaymentMethod::tryFrom((string) $request->input('payment_method')) ?? PaymentMethod::Cod;
+
         $validated = $request->validate([
             'address_id' => ['required', 'uuid'],
             'payment_method' => ['required', 'string'],
             'note' => ['nullable', 'string', 'max:1000'],
+            // A bank transfer needs proof before it can be confirmed —
+            // required only for that method, never for COD.
+            'proof' => [
+                $method === PaymentMethod::Transfer ? 'required' : 'nullable',
+                'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120',
+            ],
             // FR-103 — terms acceptance is recorded, versioned and timestamped.
             'accept_terms' => ['accepted'],
         ]);
@@ -60,14 +68,17 @@ class CheckoutController extends Controller
         $address = Address::where('user_id', $request->user()->id)
             ->findOrFail($validated['address_id']);
 
-        $method = PaymentMethod::tryFrom($validated['payment_method']) ?? PaymentMethod::Cod;
-
         abort_unless($method->isAvailableAtLaunch(), 422);
 
         $this->recordTermsAcceptance($request);
 
+        // NFR-08 — same reasoning as credential documents: never the public disk.
+        $proofPath = $request->hasFile('proof')
+            ? $request->file('proof')->store('', 'payment_proofs')
+            : null;
+
         try {
-            $order = $this->placer->place($request->user(), $address, $method, $validated['note'] ?? null);
+            $order = $this->placer->place($request->user(), $address, $method, $validated['note'] ?? null, $proofPath);
         } catch (RuntimeException $e) {
             return back()->withErrors(['cart' => $e->getMessage()]);
         }

@@ -9,6 +9,7 @@ return [
     'sign_in' => 'Connexion',
     'sign_out' => 'Déconnexion',
     'back' => 'Retour',
+    'save' => 'Enregistrer',
     'yes' => 'Oui',
     'no' => 'Non',
     'unknown_seller' => 'Vendeur inconnu',

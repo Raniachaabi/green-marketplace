@@ -1,5 +1,7 @@
 @extends('layouts.app')
-@section('title', __('common.catalogue'))
+@php($filteredCategory = $categories->firstWhere('slug', request('category')))
+@section('title', __('common.catalogue').' — '.config('app.name'))
+@section('meta_description', $filteredCategory ? $filteredCategory->name().' — '.__('common.footer_note') : __('common.footer_note'))
 
 @section('content')
     <div class="grid gap-8 lg:grid-cols-[280px_1fr]">

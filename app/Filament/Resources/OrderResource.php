@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Enums\OrderStatus;
 use App\Filament\Resources\OrderResource\Pages;
+use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
 use App\Support\Money;
 use Filament\Forms;
@@ -11,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 /** FR-113 — order operations, searchable by order, buyer, seller and lot. */
 class OrderResource extends Resource
@@ -36,9 +38,20 @@ class OrderResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['buyer', 'lines.listing.sellerUser', 'lines.listing.sellerOrg']))
             ->columns([
                 Tables\Columns\TextColumn::make('number')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('buyer.full_name')->label('Buyer')->searchable(),
+                Tables\Columns\TextColumn::make('sellers')
+                    ->label('Seller(s)')
+                    ->getStateUsing(fn (Order $r) => $r->lines
+                        ->map(fn ($l) => $l->listing?->sellerLabel())
+                        ->filter()
+                        ->unique()
+                        ->implode(', '))
+                    ->searchable(query: fn (Builder $query, string $search) => $query
+                        ->whereHas('lines.sellerUser', fn ($u) => $u->where('full_name', 'like', "%{$search}%"))
+                        ->orWhereHas('lines.sellerOrg', fn ($o) => $o->where('legal_name', 'like', "%{$search}%"))),
                 Tables\Columns\TextColumn::make('lines_count')->counts('lines')->label('Items'),
                 Tables\Columns\TextColumn::make('total')
                     ->getStateUsing(fn (Order $r) => Money::format((int) $r->total))
@@ -63,6 +76,15 @@ class OrderResource extends Resource
                         : $query),
             ])
             ->actions([Tables\Actions\EditAction::make()]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\LinesRelationManager::class,
+            RelationManagers\ShipmentsRelationManager::class,
+            RelationManagers\PaymentsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

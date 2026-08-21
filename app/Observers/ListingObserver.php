@@ -4,6 +4,9 @@ namespace App\Observers;
 
 use App\Enums\ListingStatus;
 use App\Models\Listing;
+use App\Notifications\ListingApproved;
+use App\Notifications\ListingRejected;
+use App\Notifications\ListingSuspended;
 use Illuminate\Support\Str;
 
 class ListingObserver
@@ -46,5 +49,25 @@ class ListingObserver
             $listing->status = ListingStatus::Pending;
             $listing->status_reason = 'edited_after_publication';
         }
+    }
+
+    /**
+     * Notify the seller on every moderation outcome. Hooked here rather than
+     * at each call site (the publishing gate, the admin suspend action, a
+     * raw Filament edit) so no path into these statuses can forget to tell
+     * the seller what happened.
+     */
+    public function updated(Listing $listing): void
+    {
+        if (! $listing->wasChanged('status') || ! $listing->sellerUser) {
+            return;
+        }
+
+        match ($listing->status) {
+            ListingStatus::Active => $listing->sellerUser->notify(new ListingApproved($listing)),
+            ListingStatus::Suspended => $listing->sellerUser->notify(new ListingSuspended($listing)),
+            ListingStatus::Rejected => $listing->sellerUser->notify(new ListingRejected($listing)),
+            default => null,
+        };
     }
 }

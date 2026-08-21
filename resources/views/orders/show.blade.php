@@ -116,9 +116,7 @@
                                         <p class="text-xs text-stone-500 dark:text-muted-foreground">{{ __('order.tracking_ref') }}: {{ $shipment->tracking_ref }}</p>
                                     @endif
                                 </div>
-                                <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600 dark:bg-muted dark:text-muted-foreground">
-                                    {{ __('order.shipment_status.'.$shipment->status) }}
-                                </span>
+                                <x-status-badge :status="$shipment->status" />
                             </li>
                         @endforeach
                     </ul>
@@ -147,7 +145,7 @@
             @if($order->payments->isNotEmpty())
                 <div class="rounded-2xl border border-stone-200 bg-white p-4 text-sm shadow-card dark:border-border dark:bg-card">
                     <p class="font-medium text-leaf-900 dark:text-foreground">{{ $order->payment_method->label() }}</p>
-                    <p class="text-xs text-stone-500 dark:text-muted-foreground">{{ __('order.payment_status.'.$order->payments->first()->status) }}</p>
+                    <p class="text-xs text-stone-500 dark:text-muted-foreground">{{ $order->payments->first()->status->label() }}</p>
                 </div>
             @endif
 

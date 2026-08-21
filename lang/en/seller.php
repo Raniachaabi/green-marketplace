@@ -48,6 +48,10 @@ return [
     'nav_listings' => 'Dashboard',
     'nav_new' => 'New listing',
     'nav_documents' => 'Documents',
+    'nav_orders' => 'Orders',
+    'no_orders' => 'No orders yet.',
+    'fulfillment_status' => 'Fulfillment status',
+    'shipment_updated' => 'Shipment status updated.',
 
     'new_listing_intro' => 'Pick a category, fill in the details, then add photos before you publish.',
     'ready_to_list' => 'Ready to list',
@@ -93,4 +97,10 @@ return [
     'photo_removed' => 'Photo removed.',
     'photo_cover_updated' => 'Cover photo updated.',
     'save_changes' => 'Save changes',
+
+    'view_storefront' => 'View storefront',
+    'storefront_listings' => 'Listings',
+    'storefront_no_listings' => 'Nothing live right now — check back soon.',
+    'storefront_reviews' => 'reviews',
+    'member_since' => 'Selling since :date',
 ];

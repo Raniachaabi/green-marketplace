@@ -38,6 +38,16 @@ class OrderLine extends Model
         return $this->belongsTo(Listing::class);
     }
 
+    public function sellerUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'seller_user_id');
+    }
+
+    public function sellerOrg(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'seller_org_id');
+    }
+
     public function review(): HasOne
     {
         return $this->hasOne(Review::class);

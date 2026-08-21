@@ -1,9 +1,22 @@
 <!DOCTYPE html>
 <html lang="{{ $locale ?? app()->getLocale() }}" dir="{{ $dir ?? 'ltr' }}">
+@php
+    // Anything behind an account (cart, checkout, dashboards, auth forms)
+    // stays out of search results; the catalogue, listing pages and seller
+    // storefronts are what should actually be indexed.
+    $privateRoute = request()->routeIs([
+        'checkout.*', 'cart.*', 'orders.*', 'addresses.*', 'wishlist.*', 'notifications.*',
+        'seller.listings.*', 'seller.orders.*', 'seller.onboarding', 'seller.requirements', 'seller.credentials.*',
+        'login.*', 'register.*', 'password.*', 'reviews.*',
+    ]);
+@endphp
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', config('app.name'))</title>
+    <meta name="description" content="@yield('meta_description', __('common.footer_note'))">
+    <meta name="robots" content="@yield('robots', $privateRoute ? 'noindex, nofollow' : 'index, follow')">
+    <link rel="canonical" href="@yield('canonical', url()->current())">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -58,6 +71,10 @@
                    class="hidden rounded-full px-3 py-2 font-medium text-stone-600 hover:bg-leaf-50 hover:text-leaf-700 sm:inline-block dark:text-muted-foreground dark:hover:bg-accent dark:hover:text-foreground">
                     {{ __('common.selling') }}
                 </a>
+                <a href="{{ route('wishlist.index') }}"
+                   class="hidden rounded-full px-3 py-2 font-medium text-stone-600 hover:bg-leaf-50 hover:text-leaf-700 sm:inline-block dark:text-muted-foreground dark:hover:bg-accent dark:hover:text-foreground">
+                    {{ __('wishlist.title') }}
+                </a>
                 <a href="{{ route('orders.index') }}"
                    class="hidden rounded-full px-3 py-2 font-medium text-stone-600 hover:bg-leaf-50 hover:text-leaf-700 sm:inline-block dark:text-muted-foreground dark:hover:bg-accent dark:hover:text-foreground">
                     {{ __('common.my_orders') }}
@@ -74,6 +91,10 @@
                    class="hidden rounded-full px-3 py-2 font-medium text-stone-600 hover:bg-leaf-50 hover:text-leaf-700 sm:inline-block dark:text-muted-foreground dark:hover:bg-accent dark:hover:text-foreground">
                     {{ __('common.sign_in') }}
                 </a>
+            @endauth
+
+            @auth
+                <x-notification-bell />
             @endauth
 
             <a href="{{ route('cart.show') }}"
@@ -127,6 +148,7 @@
             <a href="{{ route('catalog.index') }}" class="shrink-0 hover:text-leaf-700 dark:hover:text-foreground">{{ __('common.catalogue') }}</a>
             @auth
                 <a href="{{ route('seller.listings.index') }}" class="shrink-0 hover:text-leaf-700 dark:hover:text-foreground">{{ __('common.selling') }}</a>
+                <a href="{{ route('wishlist.index') }}" class="shrink-0 hover:text-leaf-700 dark:hover:text-foreground">{{ __('wishlist.title') }}</a>
                 <a href="{{ route('orders.index') }}" class="shrink-0 hover:text-leaf-700 dark:hover:text-foreground">{{ __('common.my_orders') }}</a>
                 <form method="post" action="{{ route('logout') }}" class="shrink-0">
                     @csrf
