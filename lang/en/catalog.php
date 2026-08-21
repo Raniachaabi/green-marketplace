@@ -16,4 +16,9 @@ return [
     'apply' => 'Filter',
     'empty' => 'No results.',
     'results' => '{0} No results|{1} 1 result|[2,*] :count results',
+    'min_rating' => 'Minimum rating',
+    'any_rating' => 'Any rating',
+    'verified_sellers_only' => 'Verified sellers only',
+    'made_in_tunisia_only' => 'Made in Tunisia only',
+    'you_might_like' => 'You might like',
 ];

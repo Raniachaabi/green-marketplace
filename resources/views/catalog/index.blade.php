@@ -71,6 +71,31 @@
                     </select>
                 </div>
 
+                {{-- §7 — advanced filtering: real, derived signals. --}}
+                <div class="border-t border-stone-100 pt-5 dark:border-border">
+                    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-muted-foreground">{{ __('catalog.min_rating') }}</h3>
+                    <select name="min_rating"
+                            class="w-full rounded-lg border-stone-300 text-sm focus:border-primary focus:ring-primary dark:border-input dark:bg-muted dark:text-foreground">
+                        <option value="">{{ __('catalog.any_rating') }}</option>
+                        <option value="4.5" @selected(request('min_rating') === '4.5')>4.5+</option>
+                        <option value="4" @selected(request('min_rating') === '4')>4+</option>
+                        <option value="3" @selected(request('min_rating') === '3')>3+</option>
+                    </select>
+                </div>
+
+                <div class="border-t border-stone-100 pt-5 dark:border-border space-y-2">
+                    <label class="flex items-center gap-2 rounded-lg px-1 py-0.5 hover:bg-leaf-50 dark:hover:bg-accent">
+                        <input type="checkbox" name="verified" value="1" @checked(request()->boolean('verified'))
+                               class="rounded border-stone-300 text-primary focus:ring-primary dark:border-input dark:bg-muted">
+                        <span class="text-leaf-900 dark:text-foreground">{{ __('catalog.verified_sellers_only') }}</span>
+                    </label>
+                    <label class="flex items-center gap-2 rounded-lg px-1 py-0.5 hover:bg-leaf-50 dark:hover:bg-accent">
+                        <input type="checkbox" name="origin_tn" value="1" @checked(request()->boolean('origin_tn'))
+                               class="rounded border-stone-300 text-primary focus:ring-primary dark:border-input dark:bg-muted">
+                        <span class="text-leaf-900 dark:text-foreground">🇹🇳 {{ __('catalog.made_in_tunisia_only') }}</span>
+                    </label>
+                </div>
+
                 <button class="w-full rounded-full bg-gradient-brand px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-90">
                     {{ __('catalog.apply') }}
                 </button>
@@ -85,8 +110,32 @@
         </aside>
 
         <div>
+            {{-- §6 — recent/popular searches and seller suggestions. --}}
+            @if($recentSearches->isNotEmpty() || $popularSearches->isNotEmpty() || $popularSellers->isNotEmpty())
+                <div class="mb-4 flex flex-wrap items-center gap-2 text-xs">
+                    @foreach($recentSearches as $recent)
+                        <a href="{{ route('catalog.index', ['q' => $recent]) }}"
+                           class="rounded-full border border-stone-200 px-3 py-1 text-stone-600 hover:border-leaf-300 dark:border-border dark:text-muted-foreground dark:hover:border-primary/50">
+                            🕘 {{ $recent }}
+                        </a>
+                    @endforeach
+                    @foreach($popularSearches->diff($recentSearches) as $popular)
+                        <a href="{{ route('catalog.index', ['q' => $popular]) }}"
+                           class="rounded-full border border-stone-200 px-3 py-1 text-stone-600 hover:border-leaf-300 dark:border-border dark:text-muted-foreground dark:hover:border-primary/50">
+                            🔥 {{ $popular }}
+                        </a>
+                    @endforeach
+                    @foreach($popularSellers as $popularSeller)
+                        <a href="{{ route('seller.storefront', $popularSeller->slug) }}"
+                           class="rounded-full bg-leaf-50 px-3 py-1 font-medium text-leaf-700 hover:bg-leaf-100 dark:bg-primary/15 dark:text-primary dark:hover:bg-primary/25">
+                            {{ $popularSeller->full_name }}
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+
             @php($activeGreen = (array) request('green', []))
-            @if(request('category') || request('governorate') || request('max_price') || count($activeGreen))
+            @if(request('category') || request('governorate') || request('max_price') || count($activeGreen) || request('min_rating') || request()->boolean('verified') || request()->boolean('origin_tn'))
                 <div class="mb-4 flex flex-wrap gap-2">
                     @if($cat = request('category'))
                         <a href="{{ route('catalog.index', request()->except(['category', 'page'])) }}"
@@ -112,6 +161,24 @@
                             {{ $greenAttributes->firstWhere('code', $code)?->name() ?? $code }} ×
                         </a>
                     @endforeach
+                    @if($minRating = request('min_rating'))
+                        <a href="{{ route('catalog.index', request()->except(['min_rating', 'page'])) }}"
+                           class="inline-flex items-center gap-1 rounded-full bg-leaf-50 px-3 py-1 text-xs font-medium text-leaf-700 hover:bg-leaf-100 dark:bg-primary/15 dark:text-primary dark:hover:bg-primary/25">
+                            {{ $minRating }}+ ★ ×
+                        </a>
+                    @endif
+                    @if(request()->boolean('verified'))
+                        <a href="{{ route('catalog.index', request()->except(['verified', 'page'])) }}"
+                           class="inline-flex items-center gap-1 rounded-full bg-leaf-50 px-3 py-1 text-xs font-medium text-leaf-700 hover:bg-leaf-100 dark:bg-primary/15 dark:text-primary dark:hover:bg-primary/25">
+                            {{ __('catalog.verified_sellers_only') }} ×
+                        </a>
+                    @endif
+                    @if(request()->boolean('origin_tn'))
+                        <a href="{{ route('catalog.index', request()->except(['origin_tn', 'page'])) }}"
+                           class="inline-flex items-center gap-1 rounded-full bg-leaf-50 px-3 py-1 text-xs font-medium text-leaf-700 hover:bg-leaf-100 dark:bg-primary/15 dark:text-primary dark:hover:bg-primary/25">
+                            🇹🇳 {{ __('catalog.made_in_tunisia_only') }} ×
+                        </a>
+                    @endif
                 </div>
             @endif
 
@@ -130,6 +197,17 @@
             </div>
 
             <div class="mt-8">{{ $listings->links() }}</div>
+
+            @if($recommendations->isNotEmpty())
+                <div class="mt-10">
+                    <h2 class="mb-4 text-lg font-semibold text-leaf-900 dark:text-foreground">{{ __('catalog.you_might_like') }}</h2>
+                    <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                        @foreach($recommendations as $listing)
+                            <x-listing-card :listing="$listing" />
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 @endsection

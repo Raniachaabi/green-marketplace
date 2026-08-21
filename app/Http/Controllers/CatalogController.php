@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\GreenAttribute;
 use App\Models\Listing;
+use App\Models\SearchQuery;
+use App\Models\User;
 use App\Services\GreenScoreCalculator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class CatalogController extends Controller
@@ -93,14 +96,22 @@ class CatalogController extends Controller
             }
         }
 
-        if ($term = $request->string('q')->toString()) {
+        $term = $request->string('q')->toString();
+
+        if ($term) {
+            // Phase 2 §6 — cross-locale (NFR-04) search that now also
+            // matches the seller's name and the category's own name, not
+            // just the listing's own title/description/lot number.
             $query->where(function ($q) use ($term) {
-                // Cross-locale search (NFR-04): the JSON title holds every
-                // locale, so one LIKE finds an Arabic query in a French title.
                 $q->where('title', 'like', "%{$term}%")
                     ->orWhere('description', 'like', "%{$term}%")
-                    ->orWhere('lot_number', 'like', "%{$term}%");
+                    ->orWhere('lot_number', 'like', "%{$term}%")
+                    ->orWhereHas('sellerUser', fn ($s) => $s->where('full_name', 'like', "%{$term}%"))
+                    ->orWhereHas('sellerOrg', fn ($s) => $s->where('legal_name', 'like', "%{$term}%"))
+                    ->orWhereHas('category', fn ($c) => $c->where('name', 'like', "%{$term}%"));
             });
+
+            SearchQuery::create(['user_id' => $request->user()?->id, 'term' => $term]);
         }
 
         $query->inGovernorate($request->string('governorate')->toString() ?: null);
@@ -113,6 +124,38 @@ class CatalogController extends Controller
             $query->where('price', '<=', $max * 1000);
         }
 
+        // §7 — rating, verification, and origin are real, derived signals:
+        // an aggregate over actual reviews, an actually-approved credential,
+        // and a governorate the seller really has on file. None of these
+        // are checkboxes that just set a flag.
+        if ($minRating = $request->input('min_rating')) {
+            // The threshold is inlined (not bound as a `?` parameter): PDO's
+            // sqlite driver binds a PHP float as a string parameter, and
+            // SQLite compares a numeric column against a text literal by
+            // storage class rather than value — a bound '4.5' would never
+            // match a real numeric average, silently returning zero rows.
+            // Safe to inline because it is always our own (float) cast,
+            // never the raw request string.
+            $threshold = (float) $minRating;
+            $query->whereRaw(
+                "(select avg(rating) from reviews where reviews.target_type = ? and reviews.target_id = listings.id) >= {$threshold}",
+                ['listing']
+            );
+        }
+
+        if ($request->boolean('verified')) {
+            $query->where(function ($q) {
+                $q->whereHas('sellerUser.credentials', fn ($c) => $c->approved()->unexpired()
+                    ->whereHas('credentialType.badges', fn ($b) => $b->where('badges.code', 'verified_seller')))
+                    ->orWhereHas('sellerOrg.credentials', fn ($c) => $c->approved()->unexpired()
+                        ->whereHas('credentialType.badges', fn ($b) => $b->where('badges.code', 'verified_seller')));
+            });
+        }
+
+        if ($request->boolean('origin_tn')) {
+            $query->whereNotNull('governorate');
+        }
+
         $query = match ($request->string('sort')->toString()) {
             'price_asc' => $query->orderBy('price'),
             'price_desc' => $query->orderByDesc('price'),
@@ -120,13 +163,65 @@ class CatalogController extends Controller
             default => $query->latest('published_at'),
         };
 
+        $listings = $query->paginate(24)->withQueryString();
+
         return view('catalog.index', [
-            'listings' => $query->paginate(24)->withQueryString(),
+            'listings' => $listings,
             'categories' => Category::active()->roots()->orderBy('display_order')->get(),
             'greenAttributes' => GreenAttribute::orderBy('display_order')->get(),
             'governorates' => config('marketplace.governorates'),
             'filters' => $request->all(),
+            'recentSearches' => $this->recentSearches($request),
+            'popularSearches' => $this->popularSearches(),
+            'popularSellers' => $this->popularSellers(),
+            // §6 — an empty-state should still leave the buyer somewhere to
+            // go, never a dead end. Same eager loads as the main listing
+            // query — <x-listing-card> needs every one of them.
+            'recommendations' => $listings->isEmpty()
+                ? Listing::active()->inSeason()
+                    ->with(['media', 'category', 'sellerUser', 'sellerOrg', 'greenAttributes'])
+                    ->withCount('reviews')->withAvg('reviews', 'rating')
+                    ->latest('published_at')
+                    ->take(6)
+                    ->get()
+                : collect(),
         ]);
+    }
+
+    private function recentSearches(Request $request): Collection
+    {
+        if (! $request->user()) {
+            return collect();
+        }
+
+        return SearchQuery::where('user_id', $request->user()->id)
+            ->latest('created_at')
+            ->limit(20)
+            ->pluck('term')
+            ->unique()
+            ->take(5)
+            ->values();
+    }
+
+    private function popularSearches(): Collection
+    {
+        return SearchQuery::where('created_at', '>=', now()->subDays(30))
+            ->selectRaw('term, count(*) as aggregate')
+            ->groupBy('term')
+            ->orderByDesc('aggregate')
+            ->limit(5)
+            ->pluck('term');
+    }
+
+    /** Sellers with the most live listings — the "seller suggestions" for search. */
+    private function popularSellers(): Collection
+    {
+        return User::query()
+            ->whereHas('listings', fn ($q) => $q->active())
+            ->withCount(['listings' => fn ($q) => $q->active()])
+            ->orderByDesc('listings_count')
+            ->limit(5)
+            ->get();
     }
 
     public function show(Request $request, string $slug): View

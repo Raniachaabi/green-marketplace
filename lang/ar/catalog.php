@@ -16,4 +16,9 @@ return [
     'apply' => 'تصفية',
     'empty' => 'لا توجد نتائج.',
     'results' => '{0} لا توجد نتائج|{1} نتيجة واحدة|[2,*] :count نتائج',
+    'min_rating' => 'الحد الأدنى للتقييم',
+    'any_rating' => 'أي تقييم',
+    'verified_sellers_only' => 'البائعون الموثقون فقط',
+    'made_in_tunisia_only' => 'صنع في تونس فقط',
+    'you_might_like' => 'قد يعجبك',
 ];
