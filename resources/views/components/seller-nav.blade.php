@@ -5,6 +5,7 @@
         'listings' => ['route' => route('seller.listings.index'), 'label' => __('seller.nav_listings')],
         'create' => ['route' => route('seller.listings.create'), 'label' => __('seller.nav_new')],
         'orders' => ['route' => route('seller.orders.index'), 'label' => __('seller.nav_orders')],
+        'analytics' => ['route' => route('seller.analytics.index'), 'label' => __('seller.nav_analytics')],
         'onboarding' => ['route' => route('seller.onboarding'), 'label' => __('seller.nav_documents')],
         'story' => ['route' => route('seller.story.show'), 'label' => __('seller.nav_story')],
     ];

@@ -17,6 +17,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RestockAlertController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\SellerAnalyticsController;
 use App\Http\Controllers\SellerListingController;
 use App\Http\Controllers\SellerOnboardingController;
 use App\Http\Controllers\SellerOrderController;
@@ -130,5 +131,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/histoire', [SellerStoryController::class, 'show'])->name('story.show');
         Route::put('/histoire', [SellerStoryController::class, 'update'])->name('story.update');
+
+        Route::get('/analytique', [SellerAnalyticsController::class, 'index'])->name('analytics.index');
     });
 });
